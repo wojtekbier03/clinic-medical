@@ -34,7 +34,6 @@ public class DoctorService {
         return doctorMapper.toDto(savedDoctor);
     }
 
-
     public List<DoctorDto> getAllDoctors() {
         List<Doctor> doctors = doctorRepository.findAll();
         return doctorMapper.toDtoList(doctors);
@@ -50,5 +49,16 @@ public class DoctorService {
         Optional<Doctor> optionalDoctor = doctorRepository.findById(id);
         Doctor doctor = optionalDoctor.orElseThrow(() -> new IllegalArgumentException("Doctor not found"));
         doctorRepository.delete(doctor);
+    }
+
+    public void assignDoctor(Long doctorId, Long clinicId) {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new IllegalArgumentException("Doctor not found"));
+
+        Clinic clinic = clinicRepository.findById(clinicId)
+                .orElseThrow(() -> new IllegalArgumentException("Clinic not found"));
+
+        doctor.getClinics().add(clinic);
+        doctorRepository.save(doctor);
     }
 }

@@ -29,8 +29,13 @@ public class DoctorController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteDoctor(@PathVariable Long id){
+    public void deleteDoctor(@PathVariable Long id) {
         doctorService.deleteDoctor(id);
+    }
+
+    @PatchMapping("/{doctorId}/clinics/{clinicId}")
+    public void assignDoctorToClinic(@PathVariable Long doctorId, @PathVariable Long clinicId) {
+        doctorService.assignDoctor(doctorId, clinicId);
     }
 }
 

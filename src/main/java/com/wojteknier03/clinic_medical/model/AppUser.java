@@ -1,10 +1,12 @@
 package com.wojteknier03.clinic_medical.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Objects;
+
 
 @Data
 @NoArgsConstructor
@@ -17,7 +19,24 @@ public class AppUser {
     private String username;
     private String password;
 
-//    @OneToOne(mappedBy = "user")
-//    @JsonIgnore
-//    private Patient patient;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AppUser)) return false;
+        AppUser appUser = (AppUser) o;
+        return Objects.equals(getId(), appUser.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
+    }
+
+    @Override
+    public String toString() {
+        return "AppUser{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                '}';
+    }
 }
