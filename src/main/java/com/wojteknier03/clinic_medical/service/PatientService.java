@@ -2,8 +2,8 @@ package com.wojteknier03.clinic_medical.service;
 
 import com.wojteknier03.clinic_medical.dto.PatientDto;
 import com.wojteknier03.clinic_medical.mapper.PatientMapper;
+import com.wojteknier03.clinic_medical.model.AppUser;
 import com.wojteknier03.clinic_medical.model.Patient;
-import com.wojteknier03.clinic_medical.model.User;
 import com.wojteknier03.clinic_medical.repository.PatientRepository;
 import com.wojteknier03.clinic_medical.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,10 +24,10 @@ public class PatientService {
 
     public PatientDto add(PatientDto patientDto) {
         checkEmail(patientDto.getEmail());
-        User user = userRepository.findById(patientDto.getUserId())
+        AppUser user = userRepository.findById(patientDto.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         Patient patient = patientMapper.patientDtoToPatient(patientDto);
-        patient.setUser((com.wojteknier03.clinic_medical.model.User) user);
+        patient.setUser((AppUser) user);
         Patient savedPatient = patientRepository.save(patient);
         return patientMapper.patientToPatientDto(patientRepository.save(patient));
     }

@@ -2,8 +2,8 @@ package com.wojteknier03.clinic_medical.mapper;
 
 import com.wojteknier03.clinic_medical.dto.PatientDto;
 import com.wojteknier03.clinic_medical.dto.UserDto;
+import com.wojteknier03.clinic_medical.model.AppUser;
 import com.wojteknier03.clinic_medical.model.Patient;
-import com.wojteknier03.clinic_medical.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -14,14 +14,14 @@ public interface PatientMapper {
     @Mapping(source = "userId", target = "user")
     Patient patientDtoToPatient(PatientDto patientDto);
 
-    UserDto userToUserDto(User user);
-    User userDtoToUser(UserDto userDto);
+    UserDto userToUserDto(AppUser user);
+    AppUser userDtoToUser(UserDto userDto);
 
-    default User userIdToUser(Long userId) {
+    default AppUser userIdToUser(Long userId) {
         if (userId == null) {
             return null;
         }
-        User user = new User();
+        AppUser user = new AppUser();
         user.setId(userId);
         return user;
     }

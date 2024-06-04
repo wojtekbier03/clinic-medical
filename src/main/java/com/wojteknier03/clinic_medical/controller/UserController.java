@@ -1,7 +1,7 @@
 package com.wojteknier03.clinic_medical.controller;
 
 import com.wojteknier03.clinic_medical.dto.UserDto;
-import com.wojteknier03.clinic_medical.model.User;
+import com.wojteknier03.clinic_medical.model.AppUser;
 import com.wojteknier03.clinic_medical.repository.UserRepository;
 import com.wojteknier03.clinic_medical.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +22,12 @@ public class UserController {
     }
 
     @GetMapping
-    public List<com.wojteknier03.clinic_medical.model.User> getUsers() {
+    public List<AppUser> getUsers() {
         return userRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id) {
+    public AppUser getUserById(@PathVariable Long id) {
         return userService.getUserById(id);
     }
 
