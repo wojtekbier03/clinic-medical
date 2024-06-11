@@ -5,9 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Data
 @Builder
@@ -32,12 +30,12 @@ public class Appointment {
         if (this == o) return true;
         if (!(o instanceof Appointment)) return false;
         Appointment appointment = (Appointment) o;
-        return Objects.equals(getId(), appointment.getId());
+        return this.id != null && id.equals(appointment.getId()) ;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId());
+        return getClass().hashCode();
     }
 
     @Override

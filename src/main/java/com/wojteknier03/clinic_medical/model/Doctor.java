@@ -39,12 +39,12 @@ public class Doctor {
         if (this == o) return true;
         if (!(o instanceof Doctor)) return false;
         Doctor doctor = (Doctor) o;
-        return Objects.equals(getId(), doctor.getId());
+        return this.id != null && id.equals(doctor.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId());
+        return getClass().hashCode();
     }
 
     @Override

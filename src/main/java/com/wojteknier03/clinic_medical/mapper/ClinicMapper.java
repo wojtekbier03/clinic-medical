@@ -10,5 +10,10 @@ import java.util.List;
 public interface ClinicMapper {
     ClinicDto toDto(Clinic clinic);
     Clinic fromDto(ClinicDto clinicDto);
-    List<ClinicDto> toDtoList(List<Clinic> clinics);
+
+    default List<ClinicDto> toDtoList(List<Clinic> clinics){
+        return clinics.stream()
+                .map(this::toDto)
+                .toList();
+    }
 }

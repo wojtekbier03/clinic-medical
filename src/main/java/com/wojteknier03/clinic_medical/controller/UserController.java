@@ -5,6 +5,8 @@ import com.wojteknier03.clinic_medical.model.AppUser;
 import com.wojteknier03.clinic_medical.repository.UserRepository;
 import com.wojteknier03.clinic_medical.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,8 +24,8 @@ public class UserController {
     }
 
     @GetMapping
-    public List<AppUser> getUsers() {
-        return userRepository.findAll();
+    public List<UserDto> getUsers(Pageable pageable) {
+        return userService.getUsers(pageable);
     }
 
     @GetMapping("/{id}")

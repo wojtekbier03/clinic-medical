@@ -5,6 +5,9 @@ import com.wojteknier03.clinic_medical.mapper.ClinicMapper;
 import com.wojteknier03.clinic_medical.model.Clinic;
 import com.wojteknier03.clinic_medical.repository.ClinicRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,8 +24,8 @@ public class ClinicService {
         return clinicMapper.toDto(savedClinic);
     }
 
-    public List<ClinicDto> getClinics() {
-        List<Clinic> clinics = clinicRepository.findAll();
+    public List<ClinicDto> getClinics(Pageable pageable){
+        List<Clinic> clinics = clinicRepository.findAll(pageable).getContent();
         return clinicMapper.toDtoList(clinics);
     }
 

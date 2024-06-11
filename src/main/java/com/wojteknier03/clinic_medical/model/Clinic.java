@@ -38,12 +38,12 @@ public class Clinic {
         if (this == o) return true;
         if (!(o instanceof Clinic)) return false;
         Clinic clinic = (Clinic) o;
-        return Objects.equals(getId(), clinic.getId());
+        return this.id != null && id.equals(clinic.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId());
+        return getClass().hashCode();
     }
 
     @Override

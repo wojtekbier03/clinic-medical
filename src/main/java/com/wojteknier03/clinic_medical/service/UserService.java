@@ -2,10 +2,14 @@ package com.wojteknier03.clinic_medical.service;
 
 import com.wojteknier03.clinic_medical.dto.UserDto;
 import com.wojteknier03.clinic_medical.mapper.PatientMapper;
+import com.wojteknier03.clinic_medical.mapper.UserMapper;
 import com.wojteknier03.clinic_medical.model.AppUser;
 import com.wojteknier03.clinic_medical.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,7 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final PatientMapper patientMapper;
+    private final UserMapper userMapper;
 
     @Transactional
     public UserDto addUser(UserDto userDto) {
@@ -23,14 +27,13 @@ public class UserService {
         if (existingUser.isPresent()) {
             throw new IllegalArgumentException("Username already exists");
         }
-        AppUser user = patientMapper.userDtoToUser(userDto);
-        return patientMapper.userToUserDto(userRepository.save(user));
+        AppUser user = userMapper.userDtoToUser(userDto);
+        return userMapper.userToUserDto(userRepository.save(user));
     }
 
-    public List<UserDto> getUsers() {
-        return userRepository.findAll().stream()
-                .map(patientMapper::userToUserDto)
-                .toList();
+    public List<UserDto> getUsers(Pageable pageable) {
+        List<AppUser> users = userRepository.findAll(pageable).getContent();
+        return userMapper.toDtoList(users);
     }
 
     public AppUser getUserById(Long id) {

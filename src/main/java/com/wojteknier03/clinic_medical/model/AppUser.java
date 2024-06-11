@@ -5,9 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Objects;
-
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,12 +21,12 @@ public class AppUser {
         if (this == o) return true;
         if (!(o instanceof AppUser)) return false;
         AppUser appUser = (AppUser) o;
-        return Objects.equals(getId(), appUser.getId());
+        return this.id != null && id.equals(appUser.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId());
+        return getClass().hashCode();
     }
 
     @Override

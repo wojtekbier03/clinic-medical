@@ -3,6 +3,8 @@ package com.wojteknier03.clinic_medical.controller;
 import com.wojteknier03.clinic_medical.dto.DoctorDto;
 import com.wojteknier03.clinic_medical.service.DoctorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,8 +21,8 @@ public class DoctorController {
     }
 
     @GetMapping
-    public List<DoctorDto> getAllDoctors() {
-        return doctorService.getAllDoctors();
+    public List<DoctorDto> getAllDoctors(Pageable pageable){
+        return doctorService.getAllDoctors(pageable);
     }
 
     @GetMapping("/{id}")
@@ -38,12 +40,3 @@ public class DoctorController {
         doctorService.assignDoctor(doctorId, clinicId);
     }
 }
-
-
-
-
-
-
-
-
-
