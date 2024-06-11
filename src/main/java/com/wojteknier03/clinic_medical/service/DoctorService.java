@@ -6,10 +6,9 @@ import com.wojteknier03.clinic_medical.model.Clinic;
 import com.wojteknier03.clinic_medical.model.Doctor;
 import com.wojteknier03.clinic_medical.repository.ClinicRepository;
 import com.wojteknier03.clinic_medical.repository.DoctorRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +23,7 @@ public class DoctorService {
     private final ClinicRepository clinicRepository;
     private final DoctorMapper doctorMapper;
 
+    @Transactional
     public DoctorDto addDoctor(DoctorDto doctorDto) {
         Doctor doctor = doctorMapper.fromDto(doctorDto);
 
@@ -48,12 +48,14 @@ public class DoctorService {
         return doctorMapper.toDto(doctor);
     }
 
+    @Transactional
     public void deleteDoctor(Long id) {
         Optional<Doctor> optionalDoctor = doctorRepository.findById(id);
         Doctor doctor = optionalDoctor.orElseThrow(() -> new IllegalArgumentException("Doctor not found"));
         doctorRepository.delete(doctor);
     }
 
+    @Transactional
     public void assignDoctor(Long doctorId, Long clinicId) {
         Doctor doctor = doctorRepository.findById(doctorId)
                 .orElseThrow(() -> new IllegalArgumentException("Doctor not found"));

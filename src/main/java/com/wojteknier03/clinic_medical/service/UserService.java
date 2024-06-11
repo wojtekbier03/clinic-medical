@@ -1,15 +1,12 @@
 package com.wojteknier03.clinic_medical.service;
 
 import com.wojteknier03.clinic_medical.dto.UserDto;
-import com.wojteknier03.clinic_medical.mapper.PatientMapper;
 import com.wojteknier03.clinic_medical.mapper.UserMapper;
 import com.wojteknier03.clinic_medical.model.AppUser;
 import com.wojteknier03.clinic_medical.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,6 +38,7 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
 
+    @Transactional
     public String updatePassword(Long id, String newPassword){
         AppUser user= userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));

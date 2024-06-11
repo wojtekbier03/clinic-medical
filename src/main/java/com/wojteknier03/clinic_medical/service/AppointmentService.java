@@ -6,6 +6,7 @@ import com.wojteknier03.clinic_medical.model.Appointment;
 import com.wojteknier03.clinic_medical.model.Patient;
 import com.wojteknier03.clinic_medical.repository.AppointmentRepository;
 import com.wojteknier03.clinic_medical.repository.PatientRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,7 @@ public class AppointmentService {
     private final PatientRepository patientRepository;
     private final AppointmentMapper appointmentMapper;
 
+    @Transactional
     public AppointmentDto addAppointment(AppointmentDto appointmentDto) {
         Appointment appointment = appointmentMapper.fromDto(appointmentDto);
 
@@ -51,6 +53,7 @@ public class AppointmentService {
         return appointmentMapper.toDtoList(appointments);
     }
 
+    @Transactional
     public void assignPatientToAppointment(Long appointmentId, Long patientId) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Appointment not found"));

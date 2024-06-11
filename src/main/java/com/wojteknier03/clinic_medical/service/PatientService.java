@@ -6,6 +6,7 @@ import com.wojteknier03.clinic_medical.model.AppUser;
 import com.wojteknier03.clinic_medical.model.Patient;
 import com.wojteknier03.clinic_medical.repository.PatientRepository;
 import com.wojteknier03.clinic_medical.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class PatientService {
                 .orElseThrow(() -> new IllegalArgumentException("Patient not found"));
     }
 
+    @Transactional
     public PatientDto add(PatientDto patientDto) {
         checkEmail(patientDto.getEmail());
         AppUser user = userRepository.findById(patientDto.getUserId())
@@ -32,12 +34,14 @@ public class PatientService {
         return patientMapper.patientToPatientDto(patientRepository.save(patient));
     }
 
+    @Transactional
     public void delete(String email) {
         Patient patient = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Patient not found"));
         patientRepository.delete(patient);
     }
 
+    @Transactional
     public PatientDto update(String email, PatientDto updatedPatientDto) {
         Patient patient = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Patient not found"));
