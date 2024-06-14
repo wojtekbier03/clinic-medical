@@ -1,7 +1,7 @@
 # Read Me First
 The following was discovered as part of building this project:
 
-* The original package name 'com.wojteknier03.clinic-medical' is invalid and this project uses 'com.wojteknier03.clinic_medical' instead.
+* The original package name 'com.wojteknier03.clinic-medical' is invalid and this project uses 'com.wojteknier03.clinicmedical' instead.
 
 # Getting Started
 
