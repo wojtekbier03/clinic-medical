@@ -1,4 +1,4 @@
-package com.wojteknier03.clinicmedical.patient_service;
+package com.wojteknier03.clinicmedical.service;
 
 import com.wojteknier03.clinicmedical.dto.PatientDto;
 import com.wojteknier03.clinicmedical.mapper.PatientMapper;
@@ -6,7 +6,6 @@ import com.wojteknier03.clinicmedical.model.AppUser;
 import com.wojteknier03.clinicmedical.model.Patient;
 import com.wojteknier03.clinicmedical.repository.PatientRepository;
 import com.wojteknier03.clinicmedical.repository.UserRepository;
-import com.wojteknier03.clinicmedical.service.PatientService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +33,7 @@ public class PatientServiceTest {
 
     @Test
     void getPatientByEmail_PatientExists_ReturnPatientDto(){
+        //given
          String email = "email";
          Patient patient = createPatient(email, 1L);
         PatientDto expectedDto = new PatientDto();
@@ -42,13 +42,29 @@ public class PatientServiceTest {
         when(patientRepository.findByEmail(email)).thenReturn(Optional.of(patient));
         when(patientMapper.patientToPatientDto(patient)).thenReturn(expectedDto);
 
+        //when
         PatientDto result = patientService.getPatientByEmail(email);
 
+        //then
         Assertions.assertEquals(email, result.getEmail());
     }
 
     @Test
+    void getPatientByEmail_PatientNotExists_ExceptionThrown() {
+        //given
+        String email = "nonexistent@example.com";
+
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        //when, then
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            patientService.getPatientByEmail(email);
+        });
+    }
+
+    @Test
     void add_ValidPatientDto_ReturnPatientDto() {
+        //given
         String email = "newpatient@example.com";
         PatientDto patientDto = new PatientDto();
         patientDto.setEmail(email);
@@ -71,10 +87,44 @@ public class PatientServiceTest {
         when(patientRepository.save(patient)).thenReturn(savedPatient);
         when(patientMapper.patientToPatientDto(savedPatient)).thenReturn(patientDto);
 
+        //when
         PatientDto result = patientService.add(patientDto);
 
+        //then
         Assertions.assertEquals(email, result.getEmail());
         Assertions.assertEquals(1L, result.getUserId());
+    }
+
+    @Test
+    void add_PatientEmailAlreadyExists_ExceptionThrown() {
+        //given
+        String email = "existingpatient@example.com";
+        PatientDto patientDto = new PatientDto();
+        patientDto.setEmail(email);
+
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(new Patient()));
+
+        //when, then
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            patientService.add(patientDto);
+        });
+    }
+
+    @Test
+    void add_UserNotFound_ExceptionThrown() {
+        //given
+        String email = "newpatient@example.com";
+        PatientDto patientDto = new PatientDto();
+        patientDto.setEmail(email);
+        patientDto.setUserId(999L); // Non-existing user ID
+
+        //when
+        when(userRepository.findById(patientDto.getUserId())).thenReturn(Optional.empty());
+
+        //then
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            patientService.add(patientDto);
+        });
     }
 
     @Test
@@ -89,11 +139,27 @@ public class PatientServiceTest {
         when(patientRepository.findByEmail(email)).thenReturn(Optional.of(patient));
         when(patientMapper.patientToPatientDto(patient)).thenReturn(updatedDto);
 
+        //when
         PatientDto result = patientService.update(email, updatedDto);
 
+        //then
         Assertions.assertEquals(email, result.getEmail());
     }
 
+    @Test
+    void update_PatientNotFound_ExceptionThrown() {
+        //given
+        String email = "nonexistent@example.com";
+        PatientDto updatedDto = new PatientDto();
+        updatedDto.setEmail(email);
+
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        //when, then
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            patientService.update(email, updatedDto);
+        });
+    }
 
     private Patient createPatient(String email, Long id) {
         AppUser user = new AppUser();
