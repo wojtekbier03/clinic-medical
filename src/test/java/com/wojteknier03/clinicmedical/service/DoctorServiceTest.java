@@ -15,7 +15,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.*;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DoctorServiceTest {
     DoctorService doctorService;
@@ -52,7 +52,7 @@ public class DoctorServiceTest {
     }
 
     @Test
-    void addDoctor_InvalidClinicId_Exception(){
+    void addDoctor_InvalidClinicId_Exception() {
         //given
         DoctorDto doctorDto = createDoctorDto(1L);
         Doctor doctor = createDoctor(1L);
@@ -69,7 +69,6 @@ public class DoctorServiceTest {
             doctorService.addDoctor(doctorDto);
         });
     }
-
 
     @Test
     void getAllDoctors_ReturnDoctorDtoList() {
@@ -118,6 +117,82 @@ public class DoctorServiceTest {
         //when, then
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             doctorService.getDoctorById(doctorId);
+        });
+    }
+
+    @Test
+    void deleteDoctor_DoctorExist_DeletedDoctor() {
+        //given
+        Long id = 1L;
+        Doctor doctor = createDoctor(id);
+
+        when(doctorRepository.findById(id)).thenReturn(Optional.of(doctor));
+
+        //when
+        doctorService.deleteDoctor(id);
+
+        //then
+        verify(doctorRepository, times(1)).delete(doctor);
+    }
+
+    @Test
+    void deleteDoctor_NonExistingDoctor_ExceptionThrown() {
+        Long id = 999L;
+
+        when(doctorRepository.findById(id)).thenReturn(Optional.empty());
+
+        //when, then
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            doctorService.deleteDoctor(id);
+        });
+    }
+
+    @Test
+    void assignDoctor_ValidDoctorAndClinic_DoctorAssignedToClinic() {
+        //given
+        Long doctorId = 1L;
+        Long clinicId = 1L;
+        Doctor doctor = createDoctor(doctorId);
+        Clinic clinic = new Clinic();
+        clinic.setId(clinicId);
+
+        when(doctorRepository.findById(doctorId)).thenReturn(Optional.of(doctor));
+        when(clinicRepository.findById(clinicId)).thenReturn(Optional.of(clinic));
+
+        //when
+        doctorService.assignDoctor(doctorId, clinicId);
+
+        //then
+        verify(doctorRepository, times(1)).save(doctor);
+    }
+
+    @Test
+    void assignDoctor_NonExistingDoctor_ExceptionThrown() {
+        //given
+        Long doctorId = 999L;
+        Long clinicId = 1L;
+
+        when(doctorRepository.findById(doctorId)).thenReturn(Optional.empty());
+
+        //when, then
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            doctorService.assignDoctor(doctorId, clinicId);
+        });
+    }
+
+    @Test
+    void assignDoctor_NonExistingClinic_ExceptionThrown() {
+        //given
+        Long doctorId = 1L;
+        Long clinicId = 999L;
+        Doctor doctor = createDoctor(doctorId);
+
+        when(doctorRepository.findById(doctorId)).thenReturn(Optional.of(doctor));
+        when(clinicRepository.findById(clinicId)).thenReturn(Optional.empty());
+
+        //when, then
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            doctorService.assignDoctor(doctorId, clinicId);
         });
     }
 
