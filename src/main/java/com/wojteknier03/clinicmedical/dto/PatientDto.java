@@ -1,4 +1,4 @@
-package com.wojteknier03.clinic_medical.dto;
+package com.wojteknier03.clinicmedical.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
