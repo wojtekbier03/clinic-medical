@@ -79,8 +79,6 @@ public class DoctorServiceTest {
 
         when(doctorRepository.findAll(Pageable.unpaged())).thenReturn(new org.springframework.data.domain.PageImpl<>(doctors));
         when(doctorMapper.toDtoList(doctors)).thenReturn(createDoctorDtoList(doctors));
-
-
         //when
         List<DoctorDto> result = doctorService.getAllDoctors(Pageable.unpaged());
 
