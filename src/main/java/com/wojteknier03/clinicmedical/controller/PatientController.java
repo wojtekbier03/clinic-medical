@@ -40,7 +40,6 @@ public class PatientController {
 
     @GetMapping("/{patientId}/appointments")
     public List<AppointmentDto> getAppointmentsByPatientId(@PathVariable Long patientId) {
-        System.out.println("Fetching appointments for patientId: " + patientId); // Debug log
         return appointmentService.getAppointmentByPatientId(patientId);
     }
 }

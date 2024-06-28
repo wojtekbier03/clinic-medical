@@ -15,7 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -74,6 +73,15 @@ public class PatientControllerTest {
     }
 
     @Test
+    public void getPatientByEmail_PatientNotFound_ReturnsNotFound() throws Exception {
+        when(patientService.getPatientByEmail("email")).thenReturn(null);
+
+        mockMvc.perform(get("/patients/{email}", "email"))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void addPatient_CorrectData_ReturnAddedPatient() throws Exception {
         PatientDto patientDto = PatientDto.builder()
                 .id(1L)
@@ -114,6 +122,15 @@ public class PatientControllerTest {
     }
 
     @Test
+    public void deletePatient_PatientNotFound_ReturnsNotFound() throws Exception {
+        doNothing().when(patientService).delete("test@example.com");
+
+        mockMvc.perform(delete("/patients/{email}", "nonexistent@example.com"))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void updatePatientByEmail_CorrectData_ReturnUpdatedPatient() throws Exception {
         PatientDto updatedPatientDto = PatientDto.builder()
                 .id(1L)
@@ -145,6 +162,28 @@ public class PatientControllerTest {
     }
 
     @Test
+    public void updatePatientByEmail_PatientNotFound_ReturnsNotFound() throws Exception {
+        when(patientService.update(eq("nonexistent@example.com"), any(PatientDto.class))).thenReturn(null);
+
+        PatientDto updatedPatientDto = PatientDto.builder()
+                .id(1L)
+                .email("updated@")
+                .idCardNo("123456")
+                .firstName("Updated")
+                .lastName("Name")
+                .phoneNumber("123456789")
+                .birthday(LocalDate.of(1990, 1, 1))
+                .userId(1L)
+                .build();
+
+        mockMvc.perform(put("/patients/{email}", "nonexistent@example.com")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedPatientDto)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void getAppointmentsByPatientId_CorrectData_ReturnAppointments() throws Exception {
         AppointmentDto appointmentDto1 = AppointmentDto.builder()
                 .id(1L)
@@ -173,4 +212,14 @@ public class PatientControllerTest {
                 .andExpect(jsonPath("$[1].startTime").value("2023-06-25T12:00:00"))
                 .andExpect(jsonPath("$[1].endTime").value("2023-06-25T13:00:00"));
     }
+
+    @Test
+    public void getAppointmentsByPatientId_PatientNotFound_ReturnsNotFound() throws Exception {
+        when(appointmentService.getAppointmentByPatientId(999L)).thenReturn(null);
+
+        mockMvc.perform(get("/patients/{patientId}/appointments", 999L))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
 }

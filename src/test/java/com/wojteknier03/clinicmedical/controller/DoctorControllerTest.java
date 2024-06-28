@@ -94,11 +94,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         }
 
         @Test
+        public void getDoctorById_DoctorNotFound_ReturnNotFound() throws Exception {
+            when(doctorService.getDoctorById(999L)).thenReturn(null);
+
+            mockMvc.perform(get("/doctors/{id}", 999L))
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
         public void deleteDoctor_CorrectData_StatusNoContent() throws Exception {
             doNothing().when(doctorService).deleteDoctor(1L);
 
             mockMvc.perform(delete("/doctors/{id}", 1L))
                     .andExpect(status().isNoContent());
+        }
+
+        @Test
+        public void deleteDoctor_DoctorNotFound_ReturnNotFound() throws Exception {
+            doNothing().when(doctorService).deleteDoctor(999L);
+
+            mockMvc.perform(delete("/doctors/{id}", 999L))
+                    .andExpect(status().isNotFound());
         }
 
         @Test
@@ -108,4 +124,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
             mockMvc.perform(patch("/doctors/{doctorId}/clinics/{clinicId}", 1L, 1L))
                     .andExpect(status().isOk());
         }
+
+        @Test
+        public void assignDoctorToClinic_NonExistentDoctor_ReturnNotFound() throws Exception {
+            doNothing().when(doctorService).assignDoctor(999L, 1L);
+
+            mockMvc.perform(patch("/doctors/{doctorId}/clinics/{clinicId}", 999L, 1L))
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        public void assignDoctorToClinic_NonExistentClinic_ReturnNotFound() throws Exception {
+            doNothing().when(doctorService).assignDoctor(1L, 999L);
+
+            mockMvc.perform(patch("/doctors/{doctorId}/clinics/{clinicId}", 1L, 999L))
+                    .andExpect(status().isNotFound());
+        }
+
     }

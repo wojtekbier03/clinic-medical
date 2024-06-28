@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -74,4 +75,31 @@ public class AppointmentControllerTest {
         Mockito.verify(appointmentService, Mockito.times(1))
                 .assignPatientToAppointment(appointmentId, patientId);
     }
+
+    @Test
+    void assignPatientToAppointment_NonExistentAppointmentId_ReturnNotFound() throws Exception {
+        Long appointmentId = 999L;
+        Long patientId = 1L;
+
+        Mockito.doThrow(new RuntimeException("Appointment not found"))
+                .when(appointmentService).assignPatientToAppointment(anyLong(), anyLong());
+
+        mockMvc.perform(patch("/appointments/{appointmentId}/patients/{patientId}", appointmentId, patientId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void assignPatientToAppointment_NonExistentPatientId_ReturnNotFound() throws Exception {
+        Long appointmentId = 1L;
+        Long patientId = 999L;
+
+        Mockito.doThrow(new RuntimeException("Patient not found"))
+                .when(appointmentService).assignPatientToAppointment(anyLong(), anyLong());
+
+        mockMvc.perform(patch("/appointments/{appointmentId}/patients/{patientId}", appointmentId, patientId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
 }

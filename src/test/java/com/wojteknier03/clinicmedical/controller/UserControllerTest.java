@@ -3,7 +3,6 @@ package com.wojteknier03.clinicmedical.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wojteknier03.clinicmedical.dto.UserDto;
 import com.wojteknier03.clinicmedical.model.AppUser;
-import com.wojteknier03.clinicmedical.repository.UserRepository;
 import com.wojteknier03.clinicmedical.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -50,6 +50,17 @@ public class UserControllerTest {
     }
 
     @Test
+    public void addUser_MissingData_ReturnsBadRequest() throws Exception {
+        UserDto userDto = new UserDto();
+        userDto.setUsername(""); // Missing password
+
+        mockMvc.perform(post("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void getUsers_ReturnListOfUsers() throws Exception{
         List<UserDto> userDtoList = new ArrayList<>();
         userDtoList.add(new UserDto(1L, "user", "password"));
@@ -61,6 +72,8 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].username").value("user"));
     }
+
+
 
     @Test
     public void getUserById_ReturnsUserById() throws Exception{
@@ -79,6 +92,17 @@ public class UserControllerTest {
     }
 
     @Test
+    public void getUserById_UserNotFound_ReturnsNotFound() throws Exception {
+        Long id = 1L;
+
+        when(userService.getUserById(id)).thenReturn(null);
+
+        mockMvc.perform(get("/users/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void updatePassword_CorrectData_PasswordUpdated() throws Exception{
         Long id = 1L;
         String newPassword = "password";
@@ -91,4 +115,18 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("Password updated successfully"));
     }
+
+    @Test
+    public void updatePassword_UserNotFound_ReturnsNotFound() throws Exception {
+        Long id = 1L;
+        String newPassword = "password";
+
+        when(userService.updatePassword(anyLong(), any(String.class))).thenReturn(String.valueOf(false));
+
+        mockMvc.perform(patch("/users/{id}/password", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newPassword)))
+                .andExpect(status().isNotFound());
+    }
+
 }
