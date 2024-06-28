@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class AppointmentServiceTest {
 
@@ -126,6 +126,58 @@ public class AppointmentServiceTest {
         appointment.setStartTime(LocalDateTime.now());
         appointment.setEndTime(LocalDateTime.now().plusHours(1));
         return appointment;
+    }
+
+    @Test
+    void assignPatientToAppointment_ValidIds_ExceptionThrown(){
+        //given
+        Patient patient = new Patient();
+        Long appointmentId = 1L;
+        Long patientId = 2L;
+        Appointment appointment = createAppointment(appointmentId);
+
+        when(appointmentRepository.findById(appointmentId)).thenReturn(Optional.of(appointment));
+        when(patientRepository.findById(patientId)).thenReturn(Optional.of(patient));
+
+        //when
+        appointmentService.assignPatientToAppointment(appointmentId, patientId);
+
+        //then
+        verify(appointmentRepository, times(1)).save(appointment);
+        verify(appointmentRepository, times(1)).findById(appointmentId);
+        verify(patientRepository, times(1)).findById(patientId);
+    }
+
+    @Test
+    void assignPatientToAppointment_AppointmentNotFound_ExceptionThrown(){
+        //given
+        Long appointmentId = 1L;
+        Long patientId = 2L;
+
+        when(appointmentRepository.findById(appointmentId)).thenReturn(Optional.empty());
+
+        //when, then
+        Assertions.assertThrows(IllegalArgumentException.class, () -> appointmentService.assignPatientToAppointment(appointmentId, patientId));
+        verify(appointmentRepository, times(1)).findById(appointmentId);
+        verify(patientRepository, times(1)).findById(patientId);
+        verify(appointmentRepository, times(0));
+    }
+
+    @Test
+    void assignPatientToAppointment_PatientNotFound_ExceptionThrown(){
+        //given
+        Long appointmentId = 1L;
+        Long patientId = 2L;
+        Appointment appointment = createAppointment(appointmentId);
+
+        when(appointmentRepository.findById(appointmentId)).thenReturn(Optional.of(appointment));
+        when(patientRepository.findById(patientId)).thenReturn(Optional.empty());
+
+        //when, then
+        Assertions.assertThrows(IllegalArgumentException.class, () -> appointmentService.assignPatientToAppointment(appointmentId, patientId));
+        verify(appointmentRepository, times(1)).findById(appointmentId);
+        verify(patientRepository, times(1)).findById(patientId);
+        verify(appointmentRepository, times(0)).save(any(Appointment.class));
     }
 
     private AppointmentDto createAppointmentDto(Long id) {
