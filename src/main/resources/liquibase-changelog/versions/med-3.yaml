@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: xxx
+      changes:
+        - createTable:
+            tableName: APP_USER
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: pk_app_user_id
+              - column:
+                  name: username
+                  type: varchar(255)
+              - column:
+                  name: password
+                  type: varchar(255)
