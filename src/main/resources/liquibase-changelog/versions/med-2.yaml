@@ -1,0 +1,88 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: xxx
+      changes:
+        - createTable:
+            tableName: DOCTORS
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: pk_doctor_id
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: unique_doctor_email
+              - column:
+                  name: password
+                  type: varchar(255)
+              - column:
+                  name: first_name
+                  type: varchar(255)
+              - column:
+                  name: last_name
+                  type: varchar(255)
+              - column:
+                  name: specialization
+                  type: varchar(255)
+
+        - createTable:
+            tableName: CLINICS
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: pk_clinic_id
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: unique_clinic_name
+              - column:
+                  name: city
+                  type: varchar(255)
+              - column:
+                  name: postal_code
+                  type: varchar(255)
+              - column:
+                  name: street
+                  type: varchar(255)
+              - column:
+                  name: building_number
+                  type: varchar(255)
+
+        - createTable:
+            tableName: DOCTOR_CLINIC
+            columns:
+              - column:
+                  name: doctor_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_doctor_clinic_doctor
+                    references: doctors(id)
+              - column:
+                  name: clinic_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_doctor_clinic_clinic
+                    references: clinics(id)
+        - addPrimaryKey:
+            columnNames: doctor_id, clinic_id
+            constraintName: pk_doctor_clinic
+            tableName: doctor_clinic

@@ -34,8 +34,8 @@ public class PatientServiceTest {
     @Test
     void getPatientByEmail_PatientExists_ReturnPatientDto(){
         //given
-         String email = "email";
-         Patient patient = createPatient(email, 1L);
+        String email = "email";
+        Patient patient = createPatient(email, 1L);
         PatientDto expectedDto = new PatientDto();
         expectedDto.setEmail(email);
 

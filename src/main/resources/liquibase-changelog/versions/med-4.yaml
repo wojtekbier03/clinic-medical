@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: 4
+      author: xxx
+      changes:
+        - createTable:
+            tableName: APPOINTMENTS
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: pk_appointment_id
+              - column:
+                  name: patient_id
+                  type: bigint
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_appointment_patient
+                    references: patients(id)
+              - column:
+                  name: start_time
+                  type: datetime
+              - column:
+                  name: end_time
+                  type: datetime
