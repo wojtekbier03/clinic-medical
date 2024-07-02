@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ClinicServiceTest {
 
@@ -24,14 +24,14 @@ public class ClinicServiceTest {
     ClinicMapper clinicMapper;
 
     @BeforeEach
-    void setup(){
+    void setup() {
         clinicRepository = Mockito.mock(ClinicRepository.class);
         clinicMapper = Mappers.getMapper(ClinicMapper.class);
         clinicService = new ClinicService(clinicRepository, clinicMapper);
     }
 
     @Test
-    void addClinic_ValidClinicDto_ReturnClinicDto(){
+    void addClinic_ValidClinicDto_ReturnClinicDto() {
         //given
         ClinicDto clinicDto = createClinicDto(1L);
         Clinic clinic = createClinic(1L);
@@ -48,12 +48,12 @@ public class ClinicServiceTest {
     }
 
     @Test
-    void addClinic_InvalidClinicDto_ExceptionThrown(){
+    void addClinic_InvalidClinicDto_ExceptionThrown() {
         // given
         ClinicDto clinicDto = createClinicDto(1L);
         Clinic clinic = createClinic(1L);
 
-       //when
+        //when
         when(clinicMapper.fromDto(clinicDto)).thenReturn(clinic);
         when(clinicRepository.save(clinic)).thenThrow(RuntimeException.class);
 
@@ -64,7 +64,7 @@ public class ClinicServiceTest {
     }
 
     @Test
-    void getClinics_ReturnClinicsDtoList(){
+    void getClinics_ReturnClinicsDtoList() {
         //given
         List<Clinic> clinics = new ArrayList<>();
         clinics.add(createClinic(1L));
@@ -83,7 +83,7 @@ public class ClinicServiceTest {
     }
 
     @Test
-    void getClinics_NoClinicsFound_EmptyListReturned(){
+    void getClinics_NoClinicsFound_EmptyListReturned() {
         //given
         List<Clinic> clinics = new ArrayList<>();
 
@@ -98,7 +98,7 @@ public class ClinicServiceTest {
     }
 
     @Test
-    void getClinicById_ExistingClinicId_ReturnClinicDto(){
+    void getClinicById_ExistingClinicId_ReturnClinicDto() {
         //given
         Clinic clinic = createClinic(1L);
         ClinicDto clinicDto = createClinicDto(1L);
@@ -114,7 +114,7 @@ public class ClinicServiceTest {
     }
 
     @Test
-    void getClinicById_NonExistingClinicId_ExceptionThrown(){
+    void getClinicById_NonExistingClinicId_ExceptionThrown() {
         //given
         Long nonExistingId = 999L;
 
@@ -123,6 +123,34 @@ public class ClinicServiceTest {
         //then
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             clinicService.getClinicById(nonExistingId);
+        });
+    }
+
+    @Test
+    void deleteClinic_ExistingClinic_ClinicDeleted() {
+        //given
+        Long id = 1L;
+        Clinic clinic = createClinic(id);
+
+        when(clinicRepository.findById(id)).thenReturn(Optional.of(clinic));
+
+        //when
+        clinicService.deleteClinic(id);
+
+        //then
+        verify(clinicRepository, times(1)).delete(clinic);
+    }
+
+    @Test
+    void deleteClinic_NonExistingClinicId_ExceptionThrown() {
+        //given
+        Long id = 999L;
+
+        when(clinicRepository.findById(id)).thenReturn(Optional.empty());
+
+        //when, then
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            clinicService.deleteClinic(id);
         });
     }
 
