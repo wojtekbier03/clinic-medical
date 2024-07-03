@@ -221,5 +221,4 @@ public class PatientControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
-
 }

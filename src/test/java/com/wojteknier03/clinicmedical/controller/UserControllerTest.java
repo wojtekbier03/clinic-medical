@@ -72,9 +72,7 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].username").value("user"));
     }
-
-
-
+    
     @Test
     public void getUserById_ReturnsUserById() throws Exception{
         Long id = 1L;
@@ -128,5 +126,4 @@ public class UserControllerTest {
                         .content(objectMapper.writeValueAsString(newPassword)))
                 .andExpect(status().isNotFound());
     }
-
 }

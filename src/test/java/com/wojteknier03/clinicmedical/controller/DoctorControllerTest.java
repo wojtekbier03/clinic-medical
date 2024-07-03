@@ -140,5 +140,4 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
             mockMvc.perform(patch("/doctors/{doctorId}/clinics/{clinicId}", 1L, 999L))
                     .andExpect(status().isNotFound());
         }
-
     }

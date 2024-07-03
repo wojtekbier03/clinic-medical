@@ -1,48 +1,83 @@
 databaseChangeLog:
   - changeSet:
       id: 1
-      author: xxx
+      author: wojtekbier03
       changes:
         - createTable:
             tableName: PATIENTS
             columns:
               - column:
-                  name: id
-                  type: bigint
                   autoIncrement: true
                   constraints:
-                    primaryKey: true
                     nullable: false
+                    primaryKey: true
                     primaryKeyName: pk_patient_id
+                  name: id
+                  type: BIGINT
               - column:
                   name: email
-                  type: varchar(255)
+                  type: VARCHAR(255)
                   constraints:
-                    nullable: false
                     unique: true
-                    uniqueConstraintName: unique_patient_email
+                    uniqueConstraintName: uk_patient_email
               - column:
                   name: id_card_no
-                  type: varchar(255)
-                  constraints:
-                    nullable: false
-                    unique: true
-                    uniqueConstraintName: unique_patient_id_card_no
+                  type: VARCHAR(255)
               - column:
                   name: first_name
-                  type: varchar(255)
+                  type: VARCHAR(255)
               - column:
                   name: last_name
-                  type: varchar(255)
+                  type: VARCHAR(255)
               - column:
                   name: phone_number
-                  type: varchar(255)
+                  type: VARCHAR(255)
               - column:
                   name: birthday
-                  type: date
+                  type: DATE
+
+  - changeSet:
+      id: 2
+      author: wojtekbier03
+      changes:
+        - createTable:
+            tableName: app_user
+            columns:
               - column:
-                  name: user_id
-                  type: bigint
+                  autoIncrement: true
                   constraints:
                     nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_user_id
+                  name: id
+                  type: BIGINT
+              - column:
+                  name: username
+                  type: VARCHAR(255)
+                  constraints:
+                    unique: true
+                    uniqueConstraintName: uk_user_username
+              - column:
+                  name: password
+                  type: VARCHAR(255)
 
+  - changeSet:
+      id: 3
+      author: wojtekbier03
+      changes:
+        - addColumn:
+            tableName: PATIENTS
+            columns:
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: PATIENTS
+            constraintName: fk_patient_user
+            referencedTableName: app_user
+            referencedColumnNames: id
+            onDelete: CASCADE
+            onUpdate: CASCADE

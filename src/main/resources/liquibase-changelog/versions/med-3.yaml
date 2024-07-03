@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: 3
-      author: xxx
+      id: 8
+      author: wojtekbier03
       changes:
         - createTable:
-            tableName: APP_USER
+            tableName: APPOINTMENTS
             columns:
               - column:
                   name: id
@@ -13,10 +13,17 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
-                    primaryKeyName: pk_app_user_id
+                    primaryKeyName: pk_appointment_id
               - column:
-                  name: username
-                  type: varchar(255)
+                  name: patient_id
+                  type: bigint
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_appointment_patient
+                    references: patients(id)
               - column:
-                  name: password
-                  type: varchar(255)
+                  name: start_time
+                  type: datetime
+              - column:
+                  name: end_time
+                  type: datetime

@@ -101,5 +101,4 @@ public class AppointmentControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
-
 }
