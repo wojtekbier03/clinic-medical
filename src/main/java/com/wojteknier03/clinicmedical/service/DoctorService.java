@@ -27,15 +27,20 @@ public class DoctorService {
     public DoctorDto addDoctor(DoctorDto doctorDto) {
         Doctor doctor = doctorMapper.fromDto(doctorDto);
 
-        Set<Clinic> clinics = doctorDto.getClinicIds().stream()
-                .map(clinicId -> clinicRepository.findById(clinicId)
-                        .orElseThrow(() -> new IllegalArgumentException("Clinic not found")))
-                .collect(Collectors.toSet());
+        Set<Long> clinicIds = doctorDto.getClinicIds();
+        if (clinicIds != null) {
+            Set<Clinic> clinics = clinicIds.stream()
+                    .map(clinicId -> clinicRepository.findById(clinicId)
+                            .orElseThrow(() -> new IllegalArgumentException("Clinic not found")))
+                    .collect(Collectors.toSet());
 
-        doctor.setClinics(clinics);
+            doctor.setClinics(clinics);
+        }
+
         Doctor savedDoctor = doctorRepository.save(doctor);
         return doctorMapper.toDto(savedDoctor);
     }
+
 
     // 1. Pobranie listy lekarzy (doctorRepository.findAll(pageable).getContent).
     // 2. Zwracamy to, co zwróci metoda toDtoList z doctorMapper.

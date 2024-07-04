@@ -9,6 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import org.mockito.Mockito;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
@@ -26,22 +28,20 @@ public class ClinicServiceTest {
     @BeforeEach
     void setup() {
         clinicRepository = Mockito.mock(ClinicRepository.class);
-        clinicMapper = Mappers.getMapper(ClinicMapper.class);
+        clinicMapper = Mappers.getMapper(ClinicMapper.class); // Use real mapper implementation
         clinicService = new ClinicService(clinicRepository, clinicMapper);
     }
 
     @Test
     void addClinic_ValidClinicDto_ReturnClinicDto() {
-        //given
+        // given
         ClinicDto clinicDto = createClinicDto(1L);
         Clinic clinic = createClinic(1L);
 
-        //when
-        when(clinicMapper.fromDto(clinicDto)).thenReturn(clinic);
+        // when
         when(clinicRepository.save(clinic)).thenReturn(clinic);
-        when(clinicMapper.toDto(clinic)).thenReturn(clinicDto);
 
-        //then
+        // then
         ClinicDto result = clinicService.addClinic(clinicDto);
 
         Assertions.assertEquals(1L, result.getId());
@@ -53,11 +53,10 @@ public class ClinicServiceTest {
         ClinicDto clinicDto = createClinicDto(1L);
         Clinic clinic = createClinic(1L);
 
-        //when
-        when(clinicMapper.fromDto(clinicDto)).thenReturn(clinic);
+        // when
         when(clinicRepository.save(clinic)).thenThrow(RuntimeException.class);
 
-        //then
+        // then
         Assertions.assertThrows(RuntimeException.class, () -> {
             clinicService.addClinic(clinicDto);
         });
@@ -65,18 +64,18 @@ public class ClinicServiceTest {
 
     @Test
     void getClinics_ReturnClinicsDtoList() {
-        //given
+        // given
         List<Clinic> clinics = new ArrayList<>();
         clinics.add(createClinic(1L));
         clinics.add(createClinic(2L));
+        Page<Clinic> page = new PageImpl<>(clinics);
 
-        when(clinicRepository.findAll()).thenReturn(clinics);
-        when(clinicMapper.toDtoList(clinics)).thenReturn(createClinicDtoList(clinics));
+        when(clinicRepository.findAll(any(Pageable.class))).thenReturn(page);
 
-        //when
+        // when
         List<ClinicDto> result = clinicService.getClinics(Pageable.unpaged());
 
-        //then
+        // then
         Assertions.assertEquals(2, result.size());
         Assertions.assertEquals(1L, result.get(0).getId());
         Assertions.assertEquals(2L, result.get(1).getId());
@@ -84,43 +83,42 @@ public class ClinicServiceTest {
 
     @Test
     void getClinics_NoClinicsFound_EmptyListReturned() {
-        //given
+        // given
         List<Clinic> clinics = new ArrayList<>();
+        Page<Clinic> page = new PageImpl<>(clinics);
 
-        when(clinicRepository.findAll()).thenReturn(clinics);
-        when(clinicMapper.toDtoList(clinics)).thenReturn(createClinicDtoList(clinics));
+        when(clinicRepository.findAll(any(Pageable.class))).thenReturn(page);
 
-        //when
+        // when
         List<ClinicDto> result = clinicService.getClinics(Pageable.unpaged());
 
-        //then
+        // then
         Assertions.assertTrue(result.isEmpty());
     }
 
     @Test
     void getClinicById_ExistingClinicId_ReturnClinicDto() {
-        //given
+        // given
         Clinic clinic = createClinic(1L);
         ClinicDto clinicDto = createClinicDto(1L);
 
         when(clinicRepository.findById(1L)).thenReturn(Optional.of(clinic));
-        when(clinicMapper.toDto(clinic)).thenReturn(clinicDto);
 
-        //when
+        // when
         ClinicDto result = clinicService.getClinicById(1L);
 
-        //then
+        // then
         Assertions.assertEquals(1L, result.getId());
     }
 
     @Test
     void getClinicById_NonExistingClinicId_ExceptionThrown() {
-        //given
+        // given
         Long nonExistingId = 999L;
 
         when(clinicRepository.findById(nonExistingId)).thenReturn(Optional.empty());
 
-        //then
+        // then
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             clinicService.getClinicById(nonExistingId);
         });
@@ -128,27 +126,27 @@ public class ClinicServiceTest {
 
     @Test
     void deleteClinic_ExistingClinic_ClinicDeleted() {
-        //given
+        // given
         Long id = 1L;
         Clinic clinic = createClinic(id);
 
         when(clinicRepository.findById(id)).thenReturn(Optional.of(clinic));
 
-        //when
+        // when
         clinicService.deleteClinic(id);
 
-        //then
+        // then
         verify(clinicRepository, times(1)).delete(clinic);
     }
 
     @Test
     void deleteClinic_NonExistingClinicId_ExceptionThrown() {
-        //given
+        // given
         Long id = 999L;
 
         when(clinicRepository.findById(id)).thenReturn(Optional.empty());
 
-        //when, then
+        // when, then
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             clinicService.deleteClinic(id);
         });

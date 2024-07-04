@@ -8,9 +8,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -74,8 +77,8 @@ public class DoctorController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content)
     })
-    @DeleteMapping("/{id}")
-    public void deleteDoctor(@Parameter(description = "ID of the doctor to delete") @PathVariable Long id) {
+    @DeleteMapping("/doctors/{id}")
+    public void deleteDoctor(@PathVariable Long id) {
         doctorService.deleteDoctor(id);
     }
 

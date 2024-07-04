@@ -9,62 +9,69 @@ import com.wojteknier03.clinicmedical.repository.DoctorRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mapstruct.factory.Mappers;
-import org.mockito.Mockito;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.*;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class DoctorServiceTest {
-    DoctorService doctorService;
-    DoctorRepository doctorRepository;
-    ClinicRepository clinicRepository;
-    DoctorMapper doctorMapper;
+
+    @Mock
+    private DoctorRepository doctorRepository;
+
+    @Mock
+    private ClinicRepository clinicRepository;
+
+    @Mock
+    private DoctorMapper doctorMapper;
+
+    @InjectMocks
+    private DoctorService doctorService;
 
     @BeforeEach
     void setup() {
-        doctorRepository = Mockito.mock(DoctorRepository.class);
-        clinicRepository = Mockito.mock(ClinicRepository.class);
-        doctorMapper = Mappers.getMapper(DoctorMapper.class);
-        doctorService = new DoctorService(doctorRepository, clinicRepository, doctorMapper);
+        MockitoAnnotations.initMocks(this);
     }
 
     @Test
     void addDoctor_ValidDoctorDto_ReturnDoctorDto() {
-        //given
+        // given
         DoctorDto doctorDto = createDoctorDto(1L);
         Doctor doctor = createDoctor(1L);
         Set<Long> clinicIds = new HashSet<>();
         clinicIds.add(1L);
 
         when(doctorMapper.fromDto(doctorDto)).thenReturn(doctor);
-        when(clinicRepository.findById(1L)).thenReturn(Optional.of(new Clinic()));
+        when(clinicRepository.findById(1L)).thenReturn(Optional.ofNullable(null));
         when(doctorRepository.save(doctor)).thenReturn(doctor);
         when(doctorMapper.toDto(doctor)).thenReturn(doctorDto);
 
-        //when
+        // when
         DoctorDto result = doctorService.addDoctor(doctorDto);
 
-        //then
+        // then
         Assertions.assertEquals(1L, result.getId());
     }
 
     @Test
     void addDoctor_InvalidClinicId_Exception() {
-        //given
+        // given
         DoctorDto doctorDto = createDoctorDto(1L);
         Doctor doctor = createDoctor(1L);
-        Clinic clinic = new Clinic();
         Set<Long> clinicsId = new HashSet<>();
         clinicsId.add(999L);
         doctorDto.setClinicIds(clinicsId);
 
         when(doctorMapper.fromDto(doctorDto)).thenReturn(doctor);
-        when(clinicRepository.findById(999L)).thenReturn(Optional.empty());
+        when(clinicRepository.findById(999L)).thenReturn(Optional.ofNullable(null));
 
-        //when, then
+        // when, then
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             doctorService.addDoctor(doctorDto);
         });
@@ -72,18 +79,18 @@ public class DoctorServiceTest {
 
     @Test
     void getAllDoctors_ReturnDoctorDtoList() {
-        //given
+        // given
         List<Doctor> doctors = new ArrayList<>();
         doctors.add(createDoctor(1L));
         doctors.add(createDoctor(2L));
 
-        when(doctorRepository.findAll(Pageable.unpaged())).thenReturn(new org.springframework.data.domain.PageImpl<>(doctors));
+        when(doctorRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(doctors));
         when(doctorMapper.toDtoList(doctors)).thenReturn(createDoctorDtoList(doctors));
 
-        //when
+        // when
         List<DoctorDto> result = doctorService.getAllDoctors(Pageable.unpaged());
 
-        //then
+        // then
         Assertions.assertEquals(2, result.size());
         Assertions.assertEquals(1L, result.get(0).getId());
         Assertions.assertEquals(2L, result.get(1).getId());
@@ -91,29 +98,29 @@ public class DoctorServiceTest {
 
     @Test
     void getDoctorById_ExistingDoctorId_ReturnDoctorDto() {
-        //given
+        // given
         Long doctorId = 1L;
         Doctor doctor = createDoctor(doctorId);
         DoctorDto doctorDto = createDoctorDto(doctorId);
 
-        when(doctorRepository.findById(doctorId)).thenReturn(Optional.of(doctor));
+        doReturn(Optional.of(doctor)).when(doctorRepository).findById(anyLong());
         when(doctorMapper.toDto(doctor)).thenReturn(doctorDto);
 
-        //when
+        // when
         DoctorDto result = doctorService.getDoctorById(doctorId);
 
-        //then
+        // then
         Assertions.assertEquals(doctorId, result.getId());
     }
 
     @Test
     void getDoctorById_NonExistingDoctorId_ExceptionThrown() {
-        //given
+        // given
         Long doctorId = 999L;
 
-        when(doctorRepository.findById(doctorId)).thenReturn(Optional.empty());
+        when(doctorRepository.findById(anyLong())).thenReturn(Optional.ofNullable(null));
 
-        //when, then
+        // when, then
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             doctorService.getDoctorById(doctorId);
         });
@@ -121,16 +128,16 @@ public class DoctorServiceTest {
 
     @Test
     void deleteDoctor_DoctorExist_DeletedDoctor() {
-        //given
+        // given
         Long id = 1L;
         Doctor doctor = createDoctor(id);
 
         when(doctorRepository.findById(id)).thenReturn(Optional.of(doctor));
 
-        //when
+        // when
         doctorService.deleteDoctor(id);
 
-        //then
+        // then
         verify(doctorRepository, times(1)).delete(doctor);
     }
 
@@ -138,9 +145,9 @@ public class DoctorServiceTest {
     void deleteDoctor_NonExistingDoctor_ExceptionThrown() {
         Long id = 999L;
 
-        when(doctorRepository.findById(id)).thenReturn(Optional.empty());
+        when(doctorRepository.findById(id)).thenReturn(Optional.ofNullable(null));
 
-        //when, then
+        // when, then
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             doctorService.deleteDoctor(id);
         });
@@ -148,7 +155,7 @@ public class DoctorServiceTest {
 
     @Test
     void assignDoctor_ValidDoctorAndClinic_DoctorAssignedToClinic() {
-        //given
+        // given
         Long doctorId = 1L;
         Long clinicId = 1L;
         Doctor doctor = createDoctor(doctorId);
@@ -158,22 +165,22 @@ public class DoctorServiceTest {
         when(doctorRepository.findById(doctorId)).thenReturn(Optional.of(doctor));
         when(clinicRepository.findById(clinicId)).thenReturn(Optional.of(clinic));
 
-        //when
+        // when
         doctorService.assignDoctor(doctorId, clinicId);
 
-        //then
+        // then
         verify(doctorRepository, times(1)).save(doctor);
     }
 
     @Test
     void assignDoctor_NonExistingDoctor_ExceptionThrown() {
-        //given
+        // given
         Long doctorId = 999L;
         Long clinicId = 1L;
 
-        when(doctorRepository.findById(doctorId)).thenReturn(Optional.empty());
+        when(doctorRepository.findById(doctorId)).thenReturn(Optional.ofNullable(null));
 
-        //when, then
+        // when, then
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             doctorService.assignDoctor(doctorId, clinicId);
         });
@@ -181,15 +188,15 @@ public class DoctorServiceTest {
 
     @Test
     void assignDoctor_NonExistingClinic_ExceptionThrown() {
-        //given
+        // given
         Long doctorId = 1L;
         Long clinicId = 999L;
         Doctor doctor = createDoctor(doctorId);
 
         when(doctorRepository.findById(doctorId)).thenReturn(Optional.of(doctor));
-        when(clinicRepository.findById(clinicId)).thenReturn(Optional.empty());
+        when(clinicRepository.findById(clinicId)).thenReturn(Optional.ofNullable(null));
 
-        //when, then
+        // when, then
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             doctorService.assignDoctor(doctorId, clinicId);
         });
