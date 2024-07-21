@@ -1,0 +1,18 @@
+meta {
+  name: add
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/appointments
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "startTime": "2024-06-30T10:30:00",
+    "endTime": "2024-06-30T10:45:00"
+  }
+}

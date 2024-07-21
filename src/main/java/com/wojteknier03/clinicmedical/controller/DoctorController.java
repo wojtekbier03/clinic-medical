@@ -1,27 +1,28 @@
 package com.wojteknier03.clinicmedical.controller;
 
 import com.wojteknier03.clinicmedical.dto.DoctorDto;
+import com.wojteknier03.clinicmedical.exceptions.InvalidPaginationParametersException;
+import com.wojteknier03.clinicmedical.exceptions.doctorEx.DoctorNotFoundException;
+import com.wojteknier03.clinicmedical.exceptions.doctorEx.InvalidDoctorDetailsException;
 import com.wojteknier03.clinicmedical.service.DoctorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/doctors")
-@RequiredArgsConstructor
 public class DoctorController {
     private final DoctorService doctorService;
+
+    public DoctorController(DoctorService doctorService) {
+        this.doctorService = doctorService;
+    }
 
     @Operation(summary = "Add a new doctor")
     @ApiResponses(value = {
@@ -35,6 +36,9 @@ public class DoctorController {
     })
     @PostMapping
     public DoctorDto addDoctor(@RequestBody DoctorDto doctorDto) {
+        if (doctorDto == null || doctorDto.getLastName() == null || doctorDto.getLastName().isEmpty()) {
+            throw new InvalidDoctorDetailsException("Invalid doctor details provided");
+        }
         return doctorService.addDoctor(doctorDto);
     }
 
@@ -49,7 +53,10 @@ public class DoctorController {
                     content = @Content)
     })
     @GetMapping
-    public List<DoctorDto> getAllDoctors(@Parameter(description = "Pagination information") Pageable pageable){
+    public List<DoctorDto> getAllDoctors(Pageable pageable) {
+        if (pageable == null) {
+            throw new InvalidPaginationParametersException();
+        }
         return doctorService.getAllDoctors(pageable);
     }
 
@@ -64,8 +71,12 @@ public class DoctorController {
                     content = @Content)
     })
     @GetMapping("/{id}")
-    public DoctorDto getDoctorById(@Parameter(description = "ID of the doctor to retrieve") @PathVariable Long id) {
-        return doctorService.getDoctorById(id);
+    public DoctorDto getDoctorById(@PathVariable Long id) {
+        try {
+            return doctorService.getDoctorById(id);
+        } catch (DoctorNotFoundException ex) {
+            throw new DoctorNotFoundException("Doctor not found");
+        }
     }
 
     @Operation(summary = "Delete doctor by ID")
@@ -77,24 +88,12 @@ public class DoctorController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content)
     })
-    @DeleteMapping("/doctors/{id}")
+    @DeleteMapping("/{id}")
     public void deleteDoctor(@PathVariable Long id) {
-        doctorService.deleteDoctor(id);
-    }
-
-    @Operation(summary = "Assign a doctor to a clinic")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Doctor successfully assigned to clinic",
-                    content = @Content),
-            @ApiResponse(responseCode = "404", description = "Doctor or clinic not found",
-                    content = @Content),
-            @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content)
-    })
-    @PatchMapping("/{doctorId}/clinics/{clinicId}")
-    public void assignDoctorToClinic(
-            @Parameter(description = "ID of the doctor to assign") @PathVariable Long doctorId,
-            @Parameter(description = "ID of the clinic to assign the doctor to") @PathVariable Long clinicId) {
-        doctorService.assignDoctor(doctorId, clinicId);
+        try {
+            doctorService.deleteDoctor(id);
+        } catch (DoctorNotFoundException ex) {
+            throw new DoctorNotFoundException("Doctor not found");
+        }
     }
 }

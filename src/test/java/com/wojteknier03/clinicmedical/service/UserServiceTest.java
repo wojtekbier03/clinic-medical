@@ -1,9 +1,12 @@
 package com.wojteknier03.clinicmedical.service;
 
+import com.wojteknier03.clinicmedical.dto.PatientDto;
 import com.wojteknier03.clinicmedical.dto.UserDto;
 import com.wojteknier03.clinicmedical.mapper.UserMapper;
 import com.wojteknier03.clinicmedical.model.AppUser;
+import com.wojteknier03.clinicmedical.model.Patient;
 import com.wojteknier03.clinicmedical.repository.UserRepository;
+import org.h2.engine.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -33,31 +38,6 @@ public class UserServiceTest {
         userMapper = Mappers.getMapper(UserMapper.class);
         userService = new UserService(userRepository, userMapper);
     }
-
-//    @Test
-//    void addUser_ValidUser_UserAdded() {
-//        // given
-//        UserDto userDto = new UserDto();
-//        userDto.setUsername("user");
-//        userDto.setId(3L);
-//
-//        AppUser user = createUser("user", 3L);
-//
-//        // Mocking behavior of userRepository.findByUsername()
-//        Mockito.when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
-//
-//        // Mocking behavior of userMapper methods
-//        Mockito.when(userMapper.userDtoToUser(any(UserDto.class))).thenReturn(user);
-//        Mockito.when(userRepository.save(any(AppUser.class))).thenReturn(user);
-//        Mockito.when(userMapper.userToUserDto(any(AppUser.class))).thenReturn(userDto);
-//
-//        // when
-//        UserDto result = userService.addUser(userDto);
-//
-//        // then
-//        Assertions.assertEquals("user", result.getUsername());
-//        Assertions.assertEquals(3L, result.getId());
-//    }
 
     @Test
     void addUser_UsernameAlreadyExists_ExceptionThrown() {

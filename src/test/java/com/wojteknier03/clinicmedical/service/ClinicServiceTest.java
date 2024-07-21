@@ -28,7 +28,7 @@ public class ClinicServiceTest {
     @BeforeEach
     void setup() {
         clinicRepository = Mockito.mock(ClinicRepository.class);
-        clinicMapper = Mappers.getMapper(ClinicMapper.class); // Use real mapper implementation
+        clinicMapper = Mappers.getMapper(ClinicMapper.class);
         clinicService = new ClinicService(clinicRepository, clinicMapper);
     }
 

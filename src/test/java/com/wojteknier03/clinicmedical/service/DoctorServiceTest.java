@@ -9,9 +9,8 @@ import com.wojteknier03.clinicmedical.repository.DoctorRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mapstruct.factory.Mappers;
+import org.mockito.Mockito;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
@@ -21,22 +20,18 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class DoctorServiceTest {
+    DoctorService doctorService;
 
-    @Mock
-    private DoctorRepository doctorRepository;
-
-    @Mock
-    private ClinicRepository clinicRepository;
-
-    @Mock
-    private DoctorMapper doctorMapper;
-
-    @InjectMocks
-    private DoctorService doctorService;
+    DoctorRepository doctorRepository;
+    ClinicRepository clinicRepository;
+    DoctorMapper doctorMapper;
 
     @BeforeEach
     void setup() {
-        MockitoAnnotations.initMocks(this);
+        doctorRepository = Mockito.mock(DoctorRepository.class);
+        doctorMapper = Mockito.mock(DoctorMapper.class);
+        clinicRepository = Mockito.mock(ClinicRepository.class);
+        doctorService = new DoctorService(doctorRepository, clinicRepository, doctorMapper);
     }
 
     @Test
@@ -48,7 +43,7 @@ public class DoctorServiceTest {
         clinicIds.add(1L);
 
         when(doctorMapper.fromDto(doctorDto)).thenReturn(doctor);
-        when(clinicRepository.findById(1L)).thenReturn(Optional.ofNullable(null));
+        when(clinicRepository.findById(1L)).thenReturn(Optional.empty());
         when(doctorRepository.save(doctor)).thenReturn(doctor);
         when(doctorMapper.toDto(doctor)).thenReturn(doctorDto);
 
@@ -58,6 +53,8 @@ public class DoctorServiceTest {
         // then
         Assertions.assertEquals(1L, result.getId());
     }
+
+
 
     @Test
     void addDoctor_InvalidClinicId_Exception() {

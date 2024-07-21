@@ -1,6 +1,9 @@
 package com.wojteknier03.clinicmedical.controller;
 
 import com.wojteknier03.clinicmedical.dto.ClinicDto;
+import com.wojteknier03.clinicmedical.exceptions.InvalidPaginationParametersException;
+import com.wojteknier03.clinicmedical.exceptions.clinicEx.ClinicNotFoundException;
+import com.wojteknier03.clinicmedical.exceptions.clinicEx.InvalidClinicDetailsException;
 import com.wojteknier03.clinicmedical.service.ClinicService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,6 +35,9 @@ public class ClinicController {
     })
     @PostMapping
     public ClinicDto addClinic(@RequestBody ClinicDto clinicDto) {
+        if (clinicDto == null || clinicDto.getName() == null || clinicDto.getName().isEmpty()) {
+            throw new InvalidClinicDetailsException();
+        }
         return clinicService.addClinic(clinicDto);
     }
 
@@ -47,6 +53,9 @@ public class ClinicController {
     })
     @GetMapping
     public List<ClinicDto> getAllClinics(@Parameter(description = "Pagination information") Pageable pageable) {
+        if (pageable == null) {
+            throw new InvalidPaginationParametersException();
+        }
         return clinicService.getClinics(pageable);
     }
 
@@ -61,8 +70,12 @@ public class ClinicController {
                     content = @Content)
     })
     @GetMapping("/{id}")
-    public ClinicDto getClinicById(@Parameter(description = "ID of the clinic to retrieve") @PathVariable Long id){
-        return clinicService.getClinicById(id);
+    public ClinicDto getClinicById(@Parameter(description = "ID of the clinic to retrieve") @PathVariable Long id) {
+        ClinicDto clinicDto = clinicService.getClinicById(id);
+        if (clinicDto == null) {
+            throw new ClinicNotFoundException();
+        }
+        return clinicDto;
     }
 
     @Operation(summary = "Delete clinic by ID")
@@ -75,7 +88,11 @@ public class ClinicController {
                     content = @Content)
     })
     @DeleteMapping("/{id}")
-    public void deleteClinic(@Parameter(description = "ID of the clinic to delete") @PathVariable Long id){
+    public void deleteClinic(@Parameter(description = "ID of the clinic to delete") @PathVariable Long id) {
+        ClinicDto clinicDto = clinicService.getClinicById(id);
+        if (clinicDto == null) {
+            throw new ClinicNotFoundException();
+        }
         clinicService.deleteClinic(id);
     }
 }

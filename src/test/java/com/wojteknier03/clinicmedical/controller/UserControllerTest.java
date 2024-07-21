@@ -41,7 +41,6 @@ public class UserControllerTest {
         userDto.setUsername("name");
         userDto.setPassword("password");
 
-        // Mockowanie metody addUser z userService
         when(userService.addUser(any(UserDto.class))).thenReturn(userDto);
 
         mockMvc.perform(post("/users")
@@ -106,10 +105,8 @@ public class UserControllerTest {
 //        Long id = 1L;
 //        String newPassword = "password";
 //
-//        // Mocking method with a return value
-//        boolean passwordUpdated = true; // Define the expected return value
+//        boolean passwordUpdated = true;
 //
-//        // Mock the behavior of userService.updatePassword(id, newPassword)
 //        when(userService.updatePassword(id, newPassword)).thenReturn(String.valueOf(passwordUpdated));
 //
 //        mockMvc.perform(patch("/users/{id}/password", id)

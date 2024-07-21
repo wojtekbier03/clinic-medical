@@ -9,122 +9,102 @@ import com.wojteknier03.clinicmedical.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 public class PatientServiceTest {
 
-    @Mock
-    private PatientRepository patientRepository;
-
-    @Mock
-    private UserRepository userRepository;
-
-    @Mock
-    private PatientMapper patientMapper;
-
-    @InjectMocks
-    private PatientService patientService;
+    PatientService patientService;
+    PatientRepository patientRepository;
+    PatientMapper patientMapper;
+    UserRepository userRepository;
 
     @BeforeEach
     void setup(){
-        patientMapper = Mappers.getMapper(PatientMapper.class);
+        patientRepository = Mockito.mock(PatientRepository.class);
+        userRepository = Mockito.mock(UserRepository.class);
+        patientMapper = Mockito.mock(PatientMapper.class);
         patientService = new PatientService(patientRepository, patientMapper, userRepository);
     }
 
-//    @Test
-//    void getPatientByEmail_PatientExists_ReturnPatientDto() {
-//        // Given
-//        String email = "email";
-//        Patient patient = createPatient(email, 1L);
-//        PatientDto expectedDto = new PatientDto();
-//        expectedDto.setEmail(email);
-//
-//        // Mock repository behavior
-//        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(patient));
-//
-//        // Mock mapper behavior
-//        when(patientMapper.patientToPatientDto(patient)).thenReturn(expectedDto);
-//
-//        // When
-//        PatientDto result = patientService.getPatientByEmail(email);
-//
-//        // Then
-//        Assertions.assertEquals(email, result.getEmail());
-//    }
+    @Test
+    void getPatientByEmail_PatientExists_ReturnPatientDto() {
+        String email = "email";
+        Patient patient = createPatient(email, 1L);
+        PatientDto expectedDto = new PatientDto();
+        expectedDto.setEmail(email);
+
+        // Mocking patientRepository
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(patient));
+
+        // Mocking patientMapper
+        when(patientMapper.patientToPatientDto(patient)).thenReturn(expectedDto);
+
+        // Calling the actual method under test
+        PatientDto result = patientService.getPatientByEmail(email);
+
+        // Assertions
+        assertEquals(email, result.getEmail());
+
+        // Verify mock interactions (optional)
+        verify(patientRepository, times(1)).findByEmail(email);
+        verify(patientMapper, times(1)).patientToPatientDto(patient);
+    }
 
     @Test
     void getPatientByEmail_PatientNotExists_ExceptionThrown() {
-        //given
         String email = "nonexistent@example.com";
 
         when(patientRepository.findByEmail(email)).thenReturn(Optional.empty());
 
-        //when, then
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             patientService.getPatientByEmail(email);
         });
     }
 
-//    @Test
-//    void add_ValidPatientDto_ReturnPatientDto() {
-//        //given
-//        String email = "newpatient@example.com";
-//        PatientDto patientDto = new PatientDto();
-//        patientDto.setEmail(email);
-//        patientDto.setUserId(1L);
-//
-//        AppUser user = new AppUser();
-//        user.setId(1L);
-//
-//        Patient patient = new Patient();
-//        patient.setEmail(email);
-//        patient.setUser(user);
-//
-//        Patient savedPatient = new Patient();
-//        savedPatient.setId(1L);
-//        savedPatient.setEmail(email);
-//        savedPatient.setUser(user);
-//
-//        // Mockowanie UserRepository
-//        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-//
-//        // Mockowanie PatientMapper
-//        when(patientMapper.patientDtoToPatient(patientDto)).thenReturn(patient);
-//        when(patientMapper.patientToPatientDto(savedPatient)).thenReturn(patientDto);
-//
-//        // Mockowanie PatientRepository
-//        when(patientRepository.save(patient)).thenReturn(savedPatient);
-//
-//        // Wywołanie metody w serwisie
-//        PatientDto result = patientService.add(patientDto);
-//
-//        // Sprawdzenie wyniku
-//        Assertions.assertEquals(email, result.getEmail());
-//        Assertions.assertEquals(1L, result.getUserId());
-//    }
+    @Test
+    void add_ValidPatientDto_ReturnPatientDto() {
+        String email = "newpatient@example.com";
+        PatientDto patientDto = new PatientDto();
+        patientDto.setEmail(email);
+        patientDto.setUserId(1L);
+
+        AppUser user = new AppUser();
+        user.setId(1L);
+
+        Patient patient = new Patient();
+        patient.setEmail(email);
+        patient.setUser(user);
+
+        Patient savedPatient = new Patient();
+        savedPatient.setId(1L);
+        savedPatient.setEmail(email);
+        savedPatient.setUser(user);
+
+        Mockito.when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        Mockito.when(patientMapper.patientDtoToPatient(patientDto)).thenReturn(patient);
+        Mockito.when(patientMapper.patientToPatientDto(savedPatient)).thenReturn(patientDto);
+        Mockito.when(patientRepository.save(patient)).thenReturn(savedPatient);
+
+        PatientDto result = patientService.add(patientDto);
+
+        assertEquals(email, result.getEmail());
+        assertEquals(1L, result.getUserId());
+    }
 
     @Test
     void add_PatientEmailAlreadyExists_ExceptionThrown() {
-        //given
         String email = "existingpatient@example.com";
         PatientDto patientDto = new PatientDto();
         patientDto.setEmail(email);
 
         when(patientRepository.findByEmail(email)).thenReturn(Optional.of(new Patient()));
 
-        //when, then
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             patientService.add(patientDto);
         });
@@ -132,16 +112,13 @@ public class PatientServiceTest {
 
     @Test
     void add_UserNotFound_ExceptionThrown() {
-        //given
         String email = "newpatient@example.com";
         PatientDto patientDto = new PatientDto();
         patientDto.setEmail(email);
         patientDto.setUserId(999L); // Non-existing user ID
 
-        //when
         when(userRepository.findById(patientDto.getUserId())).thenReturn(Optional.empty());
 
-        //then
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             patientService.add(patientDto);
         });
@@ -149,38 +126,56 @@ public class PatientServiceTest {
 
 //    @Test
 //    void update_ExistingPatient_ReturnUpdatedPatientDto() {
-//        // given
 //        String email = "patient@example.com";
 //        PatientDto updatedDto = new PatientDto();
 //        updatedDto.setEmail(email);
 //
 //        Patient patient = createPatient(email, 1L);
 //
-//        // Mockowanie patientRepository
-//        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(patient));
+//        // Mock repository behavior
+//        Mockito.when(patientRepository.findByEmail(email)).thenReturn(Optional.of(patient));
+//        Mockito.when(patientMapper.patientToPatientDto(patient)).thenReturn(updatedDto);
 //
-//        // Mockowanie patientMapper
-//        when(patientMapper.patientToPatientDto(patient)).thenReturn(updatedDto);
-//
-//        // when
+//        // Call the method under test
 //        PatientDto result = patientService.update(email, updatedDto);
 //
-//        // then
-//        Assertions.assertEquals(email, result.getEmail());
+//        // Assertion
+//        assertEquals(email, result.getEmail());
 //    }
 
     @Test
     void update_PatientNotFound_ExceptionThrown() {
-        //given
         String email = "nonexistent@example.com";
         PatientDto updatedDto = new PatientDto();
         updatedDto.setEmail(email);
 
         when(patientRepository.findByEmail(email)).thenReturn(Optional.empty());
 
-        //when, then
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             patientService.update(email, updatedDto);
+        });
+    }
+
+    @Test
+    void delete_ExistingPatient_Success() {
+        String email = "patient@example.com";
+        Patient patient = createPatient(email, 1L);
+
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(patient));
+
+        patientService.delete(email);
+
+        verify(patientRepository, times(1)).delete(patient);
+    }
+
+    @Test
+    void delete_PatientNotFound_ExceptionThrown() {
+        String email = "nonexistent@example.com";
+
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            patientService.delete(email);
         });
     }
 

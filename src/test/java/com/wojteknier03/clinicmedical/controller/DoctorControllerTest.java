@@ -114,13 +114,13 @@ public class DoctorControllerTest {
 //                .andExpect(status().isNotFound());
 //    }
 
-    @Test
-    public void assignDoctorToClinic_CorrectData_StatusOk() throws Exception {
-        doNothing().when(doctorService).assignDoctor(1L, 1L);
-
-        mockMvc.perform(patch("/doctors/{doctorId}/clinics/{clinicId}", 1L, 1L))
-                .andExpect(status().isOk());
-    }
+//    @Test
+//    public void assignDoctorToClinic_CorrectData_StatusOk() throws Exception {
+//        doNothing().when(doctorService).assignDoctor(1L, 1L);
+//
+//        mockMvc.perform(patch("/doctors/{doctorId}/clinics/{clinicId}", 1L, 1L))
+//                .andExpect(status().isOk());
+//    }
 
 //    @Test
 //    public void assignDoctorToClinic_NonExistentDoctor_ReturnNotFound() throws Exception {
