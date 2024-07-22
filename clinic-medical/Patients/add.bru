@@ -1,0 +1,23 @@
+meta {
+  name: add
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8080/patients
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "w123@",
+    "idCardNo": "1",
+    "firstName": "Wojtek",
+    "lastName": "B",
+    "phoneNumber": "1234",
+    "birthday": "2003-01-01",
+    "userId": 1
+  }
+}

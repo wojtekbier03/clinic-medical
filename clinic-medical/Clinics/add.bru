@@ -1,0 +1,21 @@
+meta {
+  name: add
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8080/clinics
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Clinic",
+    "city": "Lodz",
+    "postalCode":"00-000",
+    "street": "Lodzka",
+    "buildingNumber": "123"
+  }
+}

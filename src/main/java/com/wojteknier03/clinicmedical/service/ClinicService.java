@@ -48,7 +48,9 @@ public class ClinicService {
     @Transactional
     public void deleteClinic(Long id) {
         Clinic clinic = clinicRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Clinic not found"));
-        clinicRepository.delete(clinic);
+                .orElse(null);
+        if (clinic != null) {
+            clinicRepository.delete(clinic);
+        }
     }
 }

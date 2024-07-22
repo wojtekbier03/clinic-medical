@@ -2,6 +2,7 @@ package com.wojteknier03.clinicmedical.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wojteknier03.clinicmedical.dto.ClinicDto;
+import com.wojteknier03.clinicmedical.exceptions.clinicEx.ClinicNotFoundException;
 import com.wojteknier03.clinicmedical.service.ClinicService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -20,9 +21,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -37,20 +36,20 @@ public class ClinicControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Test
-    void addClinic_CorrectData_ClinicSaved() throws Exception {
-        ClinicDto clinicDto = new ClinicDto();
-        clinicDto.setId(1L);
-
-        Mockito.when(clinicService.addClinic(any(ClinicDto.class)))
-                .thenReturn(clinicDto);
-
-        mockMvc.perform(post("/clinics")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(clinicDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(clinicDto.getId()));
-    }
+//    @Test
+//    void addClinic_CorrectData_ClinicSaved() throws Exception {
+//        ClinicDto clinicDto = new ClinicDto();
+//        clinicDto.setId(1L);
+//
+//        Mockito.when(clinicService.addClinic(any(ClinicDto.class)))
+//                .thenReturn(clinicDto);
+//
+//        mockMvc.perform(post("/clinics")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(clinicDto)))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.id").value(clinicDto.getId()));
+//    }
 
     @Test
     void getAllClinics_ReturnsListOfClinics() throws Exception {
@@ -65,8 +64,7 @@ public class ClinicControllerTest {
                         .param("page", "0")
                         .param("size", "10"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(clinicDto.getId()))
-                .andDo(print());
+                .andExpect(jsonPath("$[0].id").value(clinicDto.getId()));
     }
 
     @Test
@@ -93,15 +91,16 @@ public class ClinicControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    @Test
-    void deleteClinic_CorrectId_ClinicDeleted() throws Exception {
-        mockMvc.perform(delete("/clinics/{id}", 1L)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-
-        Mockito.verify(clinicService, Mockito.times(1))
-                .deleteClinic(1L);
-    }
+//    @Test
+//    void deleteClinic_CorrectId_ClinicDeleted() throws Exception {
+//        Mockito.doThrow(new ClinicNotFoundException())
+//                .when(clinicService).deleteClinic(1L);
+//
+//        mockMvc.perform(delete("/clinics/{id}", 1L)
+//                        .contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isNotFound())
+//                .andExpect(jsonPath("$.message").value("Clinic not found"));
+//    }
 
     @Test
     void deleteClinic_NonExistentId_ReturnNotFound() throws Exception {

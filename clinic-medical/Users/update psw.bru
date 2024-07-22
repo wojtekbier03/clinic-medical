@@ -1,0 +1,18 @@
+meta {
+  name: update psw
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:8080/users/1/password
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "w123",
+    "password": "password"
+  }
+}

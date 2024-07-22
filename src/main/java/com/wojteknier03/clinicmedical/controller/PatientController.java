@@ -2,6 +2,9 @@ package com.wojteknier03.clinicmedical.controller;
 
 import com.wojteknier03.clinicmedical.dto.AppointmentDto;
 import com.wojteknier03.clinicmedical.dto.PatientDto;
+import com.wojteknier03.clinicmedical.exceptions.InvalidPaginationParametersException;
+import com.wojteknier03.clinicmedical.exceptions.patientEx.InvalidPatientDetailsException;
+import com.wojteknier03.clinicmedical.exceptions.patientEx.PatientNotFoundException;
 import com.wojteknier03.clinicmedical.service.AppointmentService;
 import com.wojteknier03.clinicmedical.service.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,7 +14,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,7 +37,11 @@ public class PatientController {
     })
     @GetMapping("/{email}")
     public PatientDto getPatientByEmail(@Parameter(description = "Email of the patient to retrieve") @PathVariable String email) {
-        return patientService.getPatientByEmail(email);
+        try {
+            return patientService.getPatientByEmail(email);
+        } catch (PatientNotFoundException ex) {
+            throw new PatientNotFoundException("Patient not found with email: " + email);
+        }
     }
 
     @Operation(summary = "Add a new patient")
@@ -50,6 +56,9 @@ public class PatientController {
     })
     @PostMapping
     public PatientDto add(@RequestBody PatientDto patientDto) {
+        if (patientDto == null || patientDto.getLastName() == null || patientDto.getLastName().isEmpty()) {
+            throw new InvalidPatientDetailsException("Invalid patient details provided");
+        }
         return patientService.add(patientDto);
     }
 
@@ -63,7 +72,6 @@ public class PatientController {
                     content = @Content)
     })
     @DeleteMapping("/{email}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@Parameter(description = "Email of the patient to delete") @PathVariable String email) {
         patientService.delete(email);
     }
@@ -81,8 +89,14 @@ public class PatientController {
                     content = @Content)
     })
     @PutMapping("/{email}")
-    public PatientDto updatePatientByEmail(@Parameter(description = "Email of the patient to update") @PathVariable String email, @RequestBody PatientDto updatedPatientDto) {
-        return patientService.update(email, updatedPatientDto);
+    public PatientDto update(@Parameter(description = "Email of the patient to update") @PathVariable String email, @RequestBody PatientDto updatedPatientDto) {
+        try {
+            return patientService.update(email, updatedPatientDto);
+        } catch (PatientNotFoundException ex) {
+            throw new PatientNotFoundException("Patient not found with email: " + email);
+        } catch (InvalidPatientDetailsException ex) {
+            throw new InvalidPatientDetailsException(ex.getMessage());
+        }
     }
 
     @Operation(summary = "Get appointments for a patient by patient ID")
@@ -97,6 +111,10 @@ public class PatientController {
     })
     @GetMapping("/{patientId}/appointments")
     public List<AppointmentDto> getAppointmentsByPatientId(@Parameter(description = "ID of the patient to retrieve appointments for") @PathVariable Long patientId) {
-        return appointmentService.getAppointmentByPatientId(patientId);
+        try {
+            return appointmentService.getAppointmentByPatientId(patientId);
+        } catch (PatientNotFoundException ex) {
+            throw new PatientNotFoundException("Patient not found with id: " + patientId);
+        }
     }
 }

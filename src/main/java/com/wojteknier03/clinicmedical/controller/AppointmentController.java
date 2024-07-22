@@ -1,6 +1,8 @@
 package com.wojteknier03.clinicmedical.controller;
 
 import com.wojteknier03.clinicmedical.dto.AppointmentDto;
+import com.wojteknier03.clinicmedical.exceptions.appointmentEx.InvalidAppointmentDetailsException;
+import com.wojteknier03.clinicmedical.exceptions.InvalidPaginationParametersException;
 import com.wojteknier03.clinicmedical.service.AppointmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,6 +34,9 @@ public class AppointmentController {
     })
     @PostMapping
     public AppointmentDto addAppointment(@RequestBody AppointmentDto appointmentDto) {
+        if (appointmentDto == null || appointmentDto.getStartTime() == null) {
+            throw new InvalidAppointmentDetailsException();
+        }
         return appointmentService.addAppointment(appointmentDto);
     }
 
@@ -47,6 +52,9 @@ public class AppointmentController {
     })
     @GetMapping
     public List<AppointmentDto> getAppointments(@Parameter(description = "Pagination information") Pageable pageable) {
+        if (pageable == null) {
+            throw new InvalidPaginationParametersException();
+        }
         return appointmentService.getAppointments(pageable);
     }
 
