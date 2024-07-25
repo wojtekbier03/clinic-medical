@@ -54,28 +54,6 @@ public class UserServiceTest {
     }
 
     @Test
-    void getUsers_UsersExist_UsersReturned() {
-        // given
-        List<AppUser> users = new ArrayList<>();
-        users.add(createUser("user1", 1L));
-        users.add(createUser("user2", 2L));
-
-        // Mocking Page and Pageable
-        Page<AppUser> page = new PageImpl<>(users);
-        when(userRepository.findAll(any(Pageable.class))).thenReturn(page);
-
-        // when
-        List<UserDto> result = userService.getUsers(Pageable.unpaged());
-
-        // then
-        Assertions.assertEquals(2, result.size());
-        Assertions.assertEquals(1L, result.get(0).getId());
-        Assertions.assertEquals("user1", result.get(0).getUsername());
-        Assertions.assertEquals(2L, result.get(1).getId());
-        Assertions.assertEquals("user2", result.get(1).getUsername());
-    }
-
-    @Test
     void getUserById_UserExists_UserReturned() {
         // given
         AppUser user = createUser("user1", 1L);

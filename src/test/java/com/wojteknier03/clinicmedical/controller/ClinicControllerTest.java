@@ -36,20 +36,21 @@ public class ClinicControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-//    @Test
-//    void addClinic_CorrectData_ClinicSaved() throws Exception {
-//        ClinicDto clinicDto = new ClinicDto();
-//        clinicDto.setId(1L);
-//
-//        Mockito.when(clinicService.addClinic(any(ClinicDto.class)))
-//                .thenReturn(clinicDto);
-//
-//        mockMvc.perform(post("/clinics")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(clinicDto)))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.id").value(clinicDto.getId()));
-//    }
+    @Test
+    void addClinic_CorrectData_ClinicSaved() throws Exception {
+        ClinicDto clinicDto = new ClinicDto();
+        clinicDto.setId(1L);
+        clinicDto.setName("Test Clinic");
+
+        Mockito.when(clinicService.addClinic(any(ClinicDto.class)))
+                .thenReturn(clinicDto);
+
+        mockMvc.perform(post("/clinics")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(clinicDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(clinicDto.getId()));
+    }
 
     @Test
     void getAllClinics_ReturnsListOfClinics() throws Exception {
@@ -91,16 +92,17 @@ public class ClinicControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-//    @Test
-//    void deleteClinic_CorrectId_ClinicDeleted() throws Exception {
-//        Mockito.doThrow(new ClinicNotFoundException())
-//                .when(clinicService).deleteClinic(1L);
-//
-//        mockMvc.perform(delete("/clinics/{id}", 1L)
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isNotFound())
-//                .andExpect(jsonPath("$.message").value("Clinic not found"));
-//    }
+
+    @Test
+    void deleteClinic_CorrectId_ClinicDeleted() throws Exception {
+        ClinicDto clinicDto = new ClinicDto();
+        Mockito.when(clinicService.getClinicById(1L)).thenReturn(clinicDto);
+        Mockito.doNothing().when(clinicService).deleteClinic(1L);
+
+        mockMvc.perform(delete("/clinics/{id}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
 
     @Test
     void deleteClinic_NonExistentId_ReturnNotFound() throws Exception {

@@ -39,19 +39,14 @@ public class PatientServiceTest {
         PatientDto expectedDto = new PatientDto();
         expectedDto.setEmail(email);
 
-        // Mocking patientRepository
         when(patientRepository.findByEmail(email)).thenReturn(Optional.of(patient));
 
-        // Mocking patientMapper
         when(patientMapper.patientToPatientDto(patient)).thenReturn(expectedDto);
 
-        // Calling the actual method under test
         PatientDto result = patientService.getPatientByEmail(email);
 
-        // Assertions
         assertEquals(email, result.getEmail());
 
-        // Verify mock interactions (optional)
         verify(patientRepository, times(1)).findByEmail(email);
         verify(patientMapper, times(1)).patientToPatientDto(patient);
     }
@@ -123,25 +118,6 @@ public class PatientServiceTest {
             patientService.add(patientDto);
         });
     }
-
-//    @Test
-//    void update_ExistingPatient_ReturnUpdatedPatientDto() {
-//        String email = "patient@example.com";
-//        PatientDto updatedDto = new PatientDto();
-//        updatedDto.setEmail(email);
-//
-//        Patient patient = createPatient(email, 1L);
-//
-//        // Mock repository behavior
-//        Mockito.when(patientRepository.findByEmail(email)).thenReturn(Optional.of(patient));
-//        Mockito.when(patientMapper.patientToPatientDto(patient)).thenReturn(updatedDto);
-//
-//        // Call the method under test
-//        PatientDto result = patientService.update(email, updatedDto);
-//
-//        // Assertion
-//        assertEquals(email, result.getEmail());
-//    }
 
     @Test
     void update_PatientNotFound_ExceptionThrown() {

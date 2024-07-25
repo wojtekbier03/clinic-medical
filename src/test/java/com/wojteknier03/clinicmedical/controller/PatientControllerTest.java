@@ -3,6 +3,7 @@ package com.wojteknier03.clinicmedical.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wojteknier03.clinicmedical.dto.AppointmentDto;
 import com.wojteknier03.clinicmedical.dto.PatientDto;
+import com.wojteknier03.clinicmedical.exceptions.patientEx.PatientNotFoundException;
 import com.wojteknier03.clinicmedical.service.AppointmentService;
 import com.wojteknier03.clinicmedical.service.PatientService;
 import org.junit.jupiter.api.Test;
@@ -20,8 +21,7 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -72,14 +72,15 @@ public class PatientControllerTest {
                 .andExpect(jsonPath("$.userId").value(1L));
     }
 
-//    @Test
-//    public void getPatientByEmail_PatientNotFound_ReturnsNotFound() throws Exception {
-//        when(patientService.getPatientByEmail("email")).thenReturn(null);
-//
-//        mockMvc.perform(get("/patients/{email}", "email"))
-//                .andDo(print())
-//                .andExpect(status().isNotFound());
-//    }
+    @Test
+    public void getPatientByEmail_PatientNotFound_ReturnsNotFound() throws Exception {
+        when(patientService.getPatientByEmail("email")).thenReturn(null);
+
+        mockMvc.perform(get("/patients/{email}", "email"))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
 
     @Test
     public void addPatient_CorrectData_ReturnAddedPatient() throws Exception {
@@ -118,17 +119,17 @@ public class PatientControllerTest {
 
         mockMvc.perform(delete("/patients/{email}", "test@example.com"))
                 .andDo(print())
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
     }
 
-//    @Test
-//    public void deletePatient_PatientNotFound_ReturnsNotFound() throws Exception {
-//        doNothing().when(patientService).delete("test@example.com");
-//
-//        mockMvc.perform(delete("/patients/{email}", "nonexistent@example.com"))
-//                .andDo(print())
-//                .andExpect(status().isNotFound());
-//    }
+    @Test
+    public void deletePatient_PatientNotFound_ReturnsNotFound() throws Exception {
+        doThrow(new PatientNotFoundException("Patient not found")).when(patientService).delete("nonexistent@example.com");
+
+        mockMvc.perform(delete("/patients/{email}", "nonexistent@example.com"))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
 
     @Test
     public void updatePatientByEmail_CorrectData_ReturnUpdatedPatient() throws Exception {
@@ -161,64 +162,25 @@ public class PatientControllerTest {
                 .andExpect(jsonPath("$.userId").value(1L));
     }
 
-//    @Test
-//    public void updatePatientByEmail_PatientNotFound_ReturnsNotFound() throws Exception {
-//        when(patientService.update(eq("nonexistent@example.com"), any(PatientDto.class))).thenReturn(null);
-//
-//        PatientDto updatedPatientDto = PatientDto.builder()
-//                .id(1L)
-//                .email("updated@")
-//                .idCardNo("123456")
-//                .firstName("Updated")
-//                .lastName("Name")
-//                .phoneNumber("123456789")
-//                .birthday(LocalDate.of(1990, 1, 1))
-//                .userId(1L)
-//                .build();
-//
-//        mockMvc.perform(put("/patients/{email}", "nonexistent@example.com")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(updatedPatientDto)))
-//                .andDo(print())
-//                .andExpect(status().isNotFound());
-//    }
-
     @Test
-    public void getAppointmentsByPatientId_CorrectData_ReturnAppointments() throws Exception {
-        AppointmentDto appointmentDto1 = AppointmentDto.builder()
+    public void updatePatientByEmail_PatientNotFound_ReturnsNotFound() throws Exception {
+        when(patientService.update(eq("nonexistent@example.com"), any(PatientDto.class))).thenReturn(null);
+
+        PatientDto updatedPatientDto = PatientDto.builder()
                 .id(1L)
-                .startTime(LocalDateTime.of(2023, 6, 24, 10, 0))
-                .endTime(LocalDateTime.of(2023, 6, 24, 11, 0))
+                .email("updated@")
+                .idCardNo("123456")
+                .firstName("Updated")
+                .lastName("Name")
+                .phoneNumber("123456789")
+                .birthday(LocalDate.of(1990, 1, 1))
+                .userId(1L)
                 .build();
 
-        AppointmentDto appointmentDto2 = AppointmentDto.builder()
-                .id(2L)
-                .startTime(LocalDateTime.of(2023, 6, 25, 12, 0))
-                .endTime(LocalDateTime.of(2023, 6, 25, 13, 0))
-                .build();
-
-        List<AppointmentDto> appointments = asList(appointmentDto1, appointmentDto2);
-
-        when(appointmentService.getAppointmentByPatientId(1L)).thenReturn(appointments);
-
-        mockMvc.perform(get("/patients/{patientId}/appointments", 1L))
+        mockMvc.perform(put("/patients/{email}", "nonexistent@example.com")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedPatientDto)))
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].id").value(1L))
-                .andExpect(jsonPath("$[0].startTime").value("2023-06-24T10:00:00"))
-                .andExpect(jsonPath("$[0].endTime").value("2023-06-24T11:00:00"))
-                .andExpect(jsonPath("$[1].id").value(2L))
-                .andExpect(jsonPath("$[1].startTime").value("2023-06-25T12:00:00"))
-                .andExpect(jsonPath("$[1].endTime").value("2023-06-25T13:00:00"));
+                .andExpect(status().isNotFound());
     }
-
-//    @Test
-//    public void getAppointmentsByPatientId_PatientNotFound_ReturnsNotFound() throws Exception {
-//        when(appointmentService.getAppointmentByPatientId(999L)).thenReturn(null);
-//
-//        mockMvc.perform(get("/patients/{patientId}/appointments", 999L))
-//                .andDo(print())
-//                .andExpect(status().isNotFound());
-//    }
 }

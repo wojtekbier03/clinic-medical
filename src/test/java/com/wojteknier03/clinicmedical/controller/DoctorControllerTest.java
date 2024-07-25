@@ -2,6 +2,7 @@ package com.wojteknier03.clinicmedical.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wojteknier03.clinicmedical.dto.DoctorDto;
+import com.wojteknier03.clinicmedical.exceptions.doctorEx.DoctorNotFoundException;
 import com.wojteknier03.clinicmedical.service.DoctorService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,10 @@ public class DoctorControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    private static final String path = "/mypath/schema";
+    private static final String jsonPath = "$.myObject.val";
+    private static final String defaultVal = "HELLO";
 
     @Test
     public void addDoctor_CorrectData_ReturnAddedDoctor() throws Exception {
@@ -92,49 +97,18 @@ public class DoctorControllerTest {
                 .andExpect(jsonPath("$.lastName").value("name"));
     }
 
-//    @Test
-//    public void getDoctorById_DoctorNotFound_ReturnNotFound() throws Exception {
-//        when(doctorService.getDoctorById(999L)).thenReturn(null);
-//
-//        mockMvc.perform(get("/doctors/{id}", 999L))
-//                .andExpect(status().isNotFound());
-//    }
-
     @Test
+
     public void deleteDoctor_CorrectData_StatusNoContent() throws Exception {
         mockMvc.perform(delete("/doctors/{id}", 1L))
                 .andReturn();
     }
 
-//    @Test
-//    public void deleteDoctor_DoctorNotFound_ReturnNotFound() throws Exception {
-//        doThrow(new Exception("Doctor not found")).when(doctorService).deleteDoctor(999L);
-//
-//        mockMvc.perform(delete("/doctors/{id}", 999L))
-//                .andExpect(status().isNotFound());
-//    }
+    @Test
+    public void deleteDoctor_DoctorNotFound_ReturnNotFound() throws Exception {
+        doThrow(new DoctorNotFoundException("Doctor not found")).when(doctorService).deleteDoctor(999L);
 
-//    @Test
-//    public void assignDoctorToClinic_CorrectData_StatusOk() throws Exception {
-//        doNothing().when(doctorService).assignDoctor(1L, 1L);
-//
-//        mockMvc.perform(patch("/doctors/{doctorId}/clinics/{clinicId}", 1L, 1L))
-//                .andExpect(status().isOk());
-//    }
-
-//    @Test
-//    public void assignDoctorToClinic_NonExistentDoctor_ReturnNotFound() throws Exception {
-//        doThrow(new Exception("Doctor not found")).when(doctorService).assignDoctor(999L, 1L);
-//
-//        mockMvc.perform(patch("/doctors/{doctorId}/clinics/{clinicId}", 999L, 1L))
-//                .andExpect(status().isNotFound());
-//    }
-
-//    @Test
-//    public void assignDoctorToClinic_NonExistentClinic_ReturnNotFound() throws Exception {
-//        doThrow(new Exception("Clinic not found")).when(doctorService).assignDoctor(1L, 999L);
-//
-//        mockMvc.perform(patch("/doctors/{doctorId}/clinics/{clinicId}", 1L, 999L))
-//                .andExpect(status().isNotFound());
-//    }
+        mockMvc.perform(delete("/doctors/{id}", 999L))
+                .andExpect(status().isNotFound());
+    }
 }

@@ -6,6 +6,6 @@ import org.springframework.http.HttpStatus;
 public class DoctorNotFoundException extends ClinicMedicalException {
 
     public DoctorNotFoundException(String message) {
-        super(message, HttpStatus.NOT_FOUND);
+        super("Doctor not found", HttpStatus.NOT_FOUND);
     }
 }

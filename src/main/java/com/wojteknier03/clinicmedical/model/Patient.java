@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Builder
@@ -26,9 +27,23 @@ public class Patient {
     private String phoneNumber;
     private LocalDate birthday;
 
+    @OneToMany(mappedBy = "patient")
+    private List<Appointment> appointments;
+
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private AppUser user;
+
+    public Patient(Long id, String email, String idCardNo, String firstName, String lastName, String phoneNumber, LocalDate birthday, AppUser user) {
+        this.id = id;
+        this.email = email;
+        this.idCardNo = idCardNo;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.birthday = birthday;
+        this.user = user;
+    }
 
     @Override
     public boolean equals(Object o) {

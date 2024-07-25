@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -24,6 +25,9 @@ public class Doctor {
     private String firstName;
     private String lastName;
     private String specialization;
+
+    @OneToMany(mappedBy = "doctor")
+    private List<Appointment> appointments;
 
     @ManyToMany
     @JoinTable(

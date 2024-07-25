@@ -72,11 +72,11 @@ public class DoctorController {
     })
     @GetMapping("/{id}")
     public DoctorDto getDoctorById(@PathVariable Long id) {
-        try {
-            return doctorService.getDoctorById(id);
-        } catch (DoctorNotFoundException ex) {
+        DoctorDto doctor = doctorService.getDoctorById(id);
+        if (doctor == null) {
             throw new DoctorNotFoundException("Doctor not found");
         }
+        return doctor;
     }
 
     @Operation(summary = "Delete doctor by ID")

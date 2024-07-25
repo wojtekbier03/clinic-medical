@@ -11,8 +11,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,8 +36,8 @@ public class ClinicController {
                     content = @Content)
     })
     @PostMapping
-    public ClinicDto addClinic(@RequestBody ClinicDto clinicDto) {
-        if (clinicDto == null || clinicDto.getName() == null || clinicDto.getName().isEmpty()) {
+    public ClinicDto addClinic(@Valid @RequestBody ClinicDto clinicDto) {
+        if (clinicDto.getName() == null || clinicDto.getName().isEmpty()) {
             throw new InvalidClinicDetailsException();
         }
         return clinicService.addClinic(clinicDto);
@@ -88,7 +90,8 @@ public class ClinicController {
                     content = @Content)
     })
     @DeleteMapping("/{id}")
-    public void deleteClinic(@Parameter(description = "ID of the clinic to delete") @PathVariable Long id) {
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteClinic(@Parameter(description = "ID kliniki do usunięcia") @PathVariable Long id) {
         ClinicDto clinicDto = clinicService.getClinicById(id);
         if (clinicDto == null) {
             throw new ClinicNotFoundException();

@@ -62,12 +62,12 @@ public class UserController {
                     content = @Content)
     })
     @GetMapping("/{id}")
-    public AppUser getUserById(@Parameter(description = "ID of the user to retrieve") @PathVariable Long id) {
-        try {
-            return userService.getUserById(id);
-        } catch (UserNotFoundException ex) {
+    public AppUser getUserById(@PathVariable Long id) {
+        AppUser userDto = userService.getUserById(id);
+        if (userDto == null) {
             throw new UserNotFoundException("User not found with id: " + id);
         }
+        return userDto;
     }
 
     @Operation(summary = "Update user's password")
@@ -84,7 +84,8 @@ public class UserController {
     @PatchMapping("/{id}/password")
     public String updatePassword(@Parameter(description = "ID of the user whose password to update") @PathVariable Long id, @RequestBody String newPassword) {
         try {
-            return userService.updatePassword(id, newPassword);
+            userService.updatePassword(id, newPassword);
+            return "Password updated successfully";
         } catch (UserNotFoundException ex) {
             throw new UserNotFoundException("User not found with id: " + id);
         } catch (InvalidUserDetailsException ex) {
