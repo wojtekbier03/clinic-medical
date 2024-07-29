@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   postgres-clinicdb:
     image: postgres:latest
@@ -8,7 +7,7 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
     ports:
-      - "5432:5432"
+      - "5434:5432"
     networks:
       - backend
 
@@ -28,7 +27,7 @@ services:
   clinic-medical:
     container_name: clinic-medical
     build:
-      context: ./clinic-medical
+      context: .
     ports:
       - "8080:8080"
     environment:
@@ -38,22 +37,6 @@ services:
       SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
     depends_on:
       - postgres-clinicdb
-    networks:
-      - backend
-
-  clinic-medical-microservice:
-    container_name: clinic-medical-microservice
-    build:
-      context: ./clinic-medical-microservice
-    ports:
-      - "8081:8081"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-clinicdb:5432/testdb
-      SPRING_DATASOURCE_USERNAME: user
-      SPRING_DATASOURCE_PASSWORD: password
-      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
-    depends_on:
-      - clinic-medical
     networks:
       - backend
 

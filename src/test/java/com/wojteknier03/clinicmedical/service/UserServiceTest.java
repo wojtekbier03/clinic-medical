@@ -1,29 +1,16 @@
 package com.wojteknier03.clinicmedical.service;
 
-import com.wojteknier03.clinicmedical.dto.PatientDto;
 import com.wojteknier03.clinicmedical.dto.UserDto;
 import com.wojteknier03.clinicmedical.mapper.UserMapper;
 import com.wojteknier03.clinicmedical.model.AppUser;
-import com.wojteknier03.clinicmedical.model.Patient;
 import com.wojteknier03.clinicmedical.repository.UserRepository;
-import org.h2.engine.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import org.mockito.Mockito;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 public class UserServiceTest {
