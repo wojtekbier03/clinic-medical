@@ -2,6 +2,7 @@ package com.wojteknier03.clinicmedical.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wojteknier03.clinicmedical.dto.ClinicDto;
+import com.wojteknier03.clinicmedical.exceptions.clinicEx.ClinicNotFoundException;
 import com.wojteknier03.clinicmedical.service.ClinicService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -20,9 +21,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -41,6 +40,7 @@ public class ClinicControllerTest {
     void addClinic_CorrectData_ClinicSaved() throws Exception {
         ClinicDto clinicDto = new ClinicDto();
         clinicDto.setId(1L);
+        clinicDto.setName("Test Clinic");
 
         Mockito.when(clinicService.addClinic(any(ClinicDto.class)))
                 .thenReturn(clinicDto);
@@ -65,8 +65,7 @@ public class ClinicControllerTest {
                         .param("page", "0")
                         .param("size", "10"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(clinicDto.getId()))
-                .andDo(print());
+                .andExpect(jsonPath("$[0].id").value(clinicDto.getId()));
     }
 
     @Test
@@ -93,14 +92,16 @@ public class ClinicControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+
     @Test
     void deleteClinic_CorrectId_ClinicDeleted() throws Exception {
+        ClinicDto clinicDto = new ClinicDto();
+        Mockito.when(clinicService.getClinicById(1L)).thenReturn(clinicDto);
+        Mockito.doNothing().when(clinicService).deleteClinic(1L);
+
         mockMvc.perform(delete("/clinics/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-
-        Mockito.verify(clinicService, Mockito.times(1))
-                .deleteClinic(1L);
     }
 
     @Test

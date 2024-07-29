@@ -1,6 +1,9 @@
 package com.wojteknier03.clinicmedical.controller;
 
 import com.wojteknier03.clinicmedical.dto.ClinicDto;
+import com.wojteknier03.clinicmedical.exceptions.InvalidPaginationParametersException;
+import com.wojteknier03.clinicmedical.exceptions.clinicEx.ClinicNotFoundException;
+import com.wojteknier03.clinicmedical.exceptions.clinicEx.InvalidClinicDetailsException;
 import com.wojteknier03.clinicmedical.service.ClinicService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -8,8 +11,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,7 +36,10 @@ public class ClinicController {
                     content = @Content)
     })
     @PostMapping
-    public ClinicDto addClinic(@RequestBody ClinicDto clinicDto) {
+    public ClinicDto addClinic(@Valid @RequestBody ClinicDto clinicDto) {
+        if (clinicDto.getName() == null || clinicDto.getName().isEmpty()) {
+            throw new InvalidClinicDetailsException();
+        }
         return clinicService.addClinic(clinicDto);
     }
 
@@ -47,6 +55,9 @@ public class ClinicController {
     })
     @GetMapping
     public List<ClinicDto> getAllClinics(@Parameter(description = "Pagination information") Pageable pageable) {
+        if (pageable == null) {
+            throw new InvalidPaginationParametersException();
+        }
         return clinicService.getClinics(pageable);
     }
 
@@ -61,8 +72,12 @@ public class ClinicController {
                     content = @Content)
     })
     @GetMapping("/{id}")
-    public ClinicDto getClinicById(@Parameter(description = "ID of the clinic to retrieve") @PathVariable Long id){
-        return clinicService.getClinicById(id);
+    public ClinicDto getClinicById(@Parameter(description = "ID of the clinic to retrieve") @PathVariable Long id) {
+        ClinicDto clinicDto = clinicService.getClinicById(id);
+        if (clinicDto == null) {
+            throw new ClinicNotFoundException();
+        }
+        return clinicDto;
     }
 
     @Operation(summary = "Delete clinic by ID")
@@ -75,7 +90,12 @@ public class ClinicController {
                     content = @Content)
     })
     @DeleteMapping("/{id}")
-    public void deleteClinic(@Parameter(description = "ID of the clinic to delete") @PathVariable Long id){
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteClinic(@Parameter(description = "ID kliniki do usunięcia") @PathVariable Long id) {
+        ClinicDto clinicDto = clinicService.getClinicById(id);
+        if (clinicDto == null) {
+            throw new ClinicNotFoundException();
+        }
         clinicService.deleteClinic(id);
     }
 }

@@ -1,8 +1,9 @@
 package com.wojteknier03.clinicmedical.controller;
 
 import com.wojteknier03.clinicmedical.dto.UserDto;
+import com.wojteknier03.clinicmedical.exceptions.userEx.InvalidUserDetailsException;
+import com.wojteknier03.clinicmedical.exceptions.userEx.UserNotFoundException;
 import com.wojteknier03.clinicmedical.model.AppUser;
-import com.wojteknier03.clinicmedical.repository.UserRepository;
 import com.wojteknier03.clinicmedical.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,7 +22,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final UserRepository userRepository;
 
     @Operation(summary = "Add a new user")
     @ApiResponses(value = {
@@ -62,8 +62,12 @@ public class UserController {
                     content = @Content)
     })
     @GetMapping("/{id}")
-    public AppUser getUserById(@Parameter(description = "ID of the user to retrieve") @PathVariable Long id) {
-        return userService.getUserById(id);
+    public AppUser getUserById(@PathVariable Long id) {
+        AppUser userDto = userService.getUserById(id);
+        if (userDto == null) {
+            throw new UserNotFoundException("User not found with id: " + id);
+        }
+        return userDto;
     }
 
     @Operation(summary = "Update user's password")
@@ -79,6 +83,13 @@ public class UserController {
     })
     @PatchMapping("/{id}/password")
     public String updatePassword(@Parameter(description = "ID of the user whose password to update") @PathVariable Long id, @RequestBody String newPassword) {
-        return userService.updatePassword(id, newPassword);
+        try {
+            userService.updatePassword(id, newPassword);
+            return "Password updated successfully";
+        } catch (UserNotFoundException ex) {
+            throw new UserNotFoundException("User not found with id: " + id);
+        } catch (InvalidUserDetailsException ex) {
+            throw new InvalidUserDetailsException(ex.getMessage());
+        }
     }
 }

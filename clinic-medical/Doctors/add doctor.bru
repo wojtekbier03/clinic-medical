@@ -1,0 +1,22 @@
+meta {
+  name: add doctor
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8080/doctors
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "jan12323@",
+    "password": "password",
+    "firstName": "Jan",
+    "lastName": "Kowalski",
+    "specialization": "Cardiologist",
+    "clinicsId": [3]
+  }
+}
